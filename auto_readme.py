@@ -14,12 +14,13 @@ class AutoReadme:
     AutoReadme is a tool that automatically generates README files and dependencies, e.g., project structure and requirements.txt, for a given project directory.
     """
 
-    def __init__(self, project_name, project_dir, author, model_name=None,
-                 out_put_dir=None, readme_path=None, project_description=None, config_dir=None, language="en"):
+    def __init__(self, project_name, project_dir, author, author_info=None, model_name=None,
+                 out_put_dir=None, project_description=None, config_dir=None, language="en"):
         self.project_name = project_name
         self.project_dir = project_dir
         self.project_description = project_description
         self.project_author = author
+        self.project_author_info = author_info
         self.language = language
         if not model_name:
             model_name = "gpt-4o"
@@ -27,8 +28,7 @@ class AutoReadme:
         if out_put_dir is None:
             out_put_dir = os.path.join(ROOT_DIR, 'output', project_name).__str__()
             os.makedirs(out_put_dir, exist_ok=True)
-        if readme_path is None:
-            readme_path = os.path.join(out_put_dir, "README.md")
+        readme_path = os.path.join(out_put_dir, "README.md")
         if not config_dir:
             config_dir = os.path.join(ROOT_DIR, "config")
             os.makedirs(config_dir, exist_ok=True)
@@ -41,21 +41,23 @@ class AutoReadme:
             f"AutoReadme initialized for {project_name}, project directory: {project_dir}, Author: {author}, Config directory: {config_dir}, Model: {model_name}")
 
     def generate_dependency(self):
+        logging.info(f"Generating project structure...")
         project_structure = self.generate_project_structure(self.project_dir)
-        logging.info(f'Project structure:')
-        logging.info("\n".join(project_structure))
+        logging.debug(f'Project structure:')
+        logging.debug("\n" + "\n".join(project_structure))
         save_content_to_file("\n".join(project_structure), os.path.join(self.out_put_dir, "PROJECT_STRUCTURE.md"))
 
         requirements = self.generate_project_requirements()
-        logging.info(f'Project requirements:')
-        logging.info("\n".join(requirements))
+        logging.debug(f'Project requirements:')
+        logging.debug("\n".join(requirements))
         save_content_to_file("\n".join(requirements), os.path.join(self.out_put_dir, "requirements.txt"))
 
         scripts_description = self.generate_description_of_all_scripts()
-        logging.info(f'Scripts description:')
-        logging.info(scripts_description)
+        logging.debug(f'Scripts description:')
+        logging.debug(scripts_description)
         with open(os.path.join(self.out_put_dir, "SCRIPT_DESCRIPTION.json"), "w", encoding='utf-8') as f:
             json.dump(scripts_description, f, ensure_ascii=False, indent=4)
+        logging.info(f"Dependencies have been generated and saved to {self.out_put_dir}")
 
     def load_ignore_files(self):
         logging.info("Loading ignore files")
@@ -64,14 +66,19 @@ class AutoReadme:
         if os.path.exists(gitignore_path):
             with open(gitignore_path, "r") as f:
                 for line in f:
-                    line = line.strip()
                     if line and not line.startswith('#'):
+                        line = line.strip().lstrip("/")
+                        if line.endswith("/"):
+                            line += "*"
                         ignore_files.append(line)
-        logging.debug(ignore_files)
+        logging.info(f".gitignore patterns: {ignore_files}")
         return ignore_files
 
     def is_ignored(self, filepath, ignore_files):
         relative_path = os.path.relpath(filepath, self.project_dir)  # get the relative path of the file
+        if any(part.startswith('.') for part in filepath.split('/')) or "__pycache__" in relative_path:
+            logging.debug(f"Ignored: {relative_path}")
+            return True
         for pattern in ignore_files:
             if fnmatch.fnmatch(relative_path, pattern):
                 logging.debug(f"Ignored: {relative_path}")
@@ -97,7 +104,7 @@ class AutoReadme:
         return scripts
 
     def generate_description_of_all_scripts(self):
-        logging.info("Generating description of all scripts")
+        logging.info("Generating description of all scripts...")
         scripts = self.find_all_scripts_and_config_files()
         script_description = {}
         for script in scripts:
@@ -116,8 +123,10 @@ class AutoReadme:
         for item in sorted(os.listdir(dir_path)):
             item_path = os.path.join(dir_path, item)
             # Skip ignored files and directories
+            logging.debug(f"Checking {item_path}")
             if self.is_ignored(item_path, ignore_files):
                 continue
+            logging.info(f"Add to structure: {item_path}")
 
             if os.path.isdir(item_path):
                 markdown_lines.append(f"{'  ' * indent_level}- **{item}/**")
@@ -127,7 +136,7 @@ class AutoReadme:
         return markdown_lines
 
     def generate_environment_requirements(self):
-        logging.info("Generating environment requirements")
+        logging.info("Generating environment requirements...")
         logging.warning("Please ensure that the environment requirements are accurate and up-to-date!")
         os.system(f"pip freeze > {os.path.join(self.out_put_dir, 'requirements_env.txt')}")
         logging.info(
@@ -163,7 +172,7 @@ class AutoReadme:
 
         environment_requirements = self.generate_environment_requirements()
         environment_requirements_str = "\n".join(environment_requirements)
-        logging.info("Generating project requirements")
+        logging.info("Generating project requirements...")
         scripts = self.find_all_scripts_and_config_files()
         import_code_lines = []
         for script in scripts:
@@ -216,7 +225,7 @@ class AutoReadme:
             return {}
         dependency_content = {}
         for file in files:
-            if file == "requirements.txt" or file == "PROJECT_STRUCTURE.md" or file == "SCRIPT_DESCRIPTION.json":
+            if file == "requirements.txt" or file == "PROJECT_STRUCTURE.md" or file == "SCRIPT_DESCRIPTION.json" or "README" in file:
                 with open(os.path.join(self.out_put_dir, file), "r") as f:
                     content = f.read()
                 dependency_content[file.title()] = content
@@ -228,13 +237,11 @@ class AutoReadme:
             "Generate a comprehensive README file for this project that includes, but is not limited to the following sections. If specific details are unknown, set <> as placeholders: "
             "1. Project Title: The name of the project."
             "2. Description: A brief overview of the project's purpose, features, and key functionalities."
-            "3. Installation: Step-by-step instructions on how to install and set up the project, including any dependencies."
-            "4. Output: The expected output position and data formats of the output."
-            "4. Usage: Examples of how to use the project, including any command-line instructions or code snippets."
-            "5. Configuration: Information on any configuration files or environment variables required."
-            "6. Contributing: Guidelines for contributing to the project, including any coding standards or pull request procedures."
-            "7. License: The license under which the project is distributed."
-            "8. Contact Information: How to reach the maintainers or developers for support or inquiries."
+            "3. Configuration: Information on any configuration files or environment variables required."
+            "4. Installation: Step-by-step instructions on how to install and set up the project, including any dependencies."
+            "5. Usage: Examples of how to use the project, including any command-line instructions or code snippets. Indicates main function or entry of the program."
+            "6. Output: The expected output position and data formats of the output."
+            "7. Contact Information: How to reach the maintainers or developers for support or inquiries."
             "Ensure that the README is clear, well-organized, and helpful for both new users and contributors."
         )
         if self.language == "cn":
@@ -247,6 +254,7 @@ class AutoReadme:
             'The information of this project is as follows:\n'
             f'project_name: {self.project_name}\n'
             f'project_author: {self.project_author}\n'
+            f'project_author_info: {self.project_author_info}\n'
             f'project_short_description: {self.project_description}\n'
         )
         for title, content in dependencies.items():
@@ -264,7 +272,7 @@ class AutoReadme:
 def save_content_to_file(content, file_path):
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
-        logging.info(f"Content has been saved to {file_path}")
+        logging.info(f"Saved to {file_path}")
 
 
 def sample():
@@ -296,11 +304,12 @@ if __name__ == "__main__":
     parser.add_argument('--project_name', type=str, help="Name of the project.")
     parser.add_argument('--project_dir', type=str, help="Directory of the project.")
     parser.add_argument('--author', type=str, help="Author of the project.")
+    parser.add_argument('--author_info', type=str,
+                        help="Author's information of the project, including name, email, phone number, etc.")
 
     # Optional arguments with defaults set to None
     parser.add_argument('--model_name', type=str, default=None, help="Model name for AutoReadme.")
     parser.add_argument('--out_put_dir', type=str, default=None, help="Directory for dependencies.")
-    parser.add_argument('--readme_path', type=str, default=None, help="Path to the README file.")
     parser.add_argument('--project_description', type=str, default=None, help="Description of the project.")
     parser.add_argument('--config_dir', type=str, default=None, help="Directory for configuration files.")
 
@@ -319,9 +328,9 @@ if __name__ == "__main__":
         project_name=args.project_name,
         project_dir=args.project_dir,
         author=args.author,
+        author_info=args.author_info,
         model_name=args.model_name,
         out_put_dir=args.out_put_dir,
-        readme_path=args.readme_path,
         project_description=args.project_description,
         config_dir=args.config_dir,
         language=args.language
