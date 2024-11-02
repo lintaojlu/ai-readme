@@ -5,7 +5,7 @@ import os
 import random
 import time
 from pathlib import Path
-import openai
+from openai import OpenAI
 
 ROOT_PATH = Path(os.path.abspath(__file__)).parents[0]  # 项目根目录
 
@@ -28,6 +28,7 @@ def get_model_answer(model_name, inputs_list, config_dir=None, stream=False):
 
 class OPENAI_API:
     def __init__(self, model_name, user_dir):
+        self.client = None
         self.USER_DIR = Path(user_dir)
         self.CONFIG_PATH = self.USER_DIR
         # 读取LLM_CONFIG
@@ -45,8 +46,10 @@ class OPENAI_API:
         self.load_model()
 
     def load_model(self):
-        openai.api_key = self.api_key
-        openai.base = self.api_base
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.api_base
+        )
 
     def switch_api_key(self):
         self.current_key_index = (self.current_key_index + 1) % len(self.keys_bases)
@@ -59,25 +62,14 @@ class OPENAI_API:
         attempt = 0
         while attempt < max_retries:
             try:
-                if stream:
-                    print("----- Streaming Request -----")
-                    stream_response = openai.ChatCompletion.create(
-                        model=self.model_name,
-                        messages=inputs_list,
-                        temperature=self.temperature,  # 对话系统需要启动随机性
-                        stream=True,
-                    )
-                    return stream_response
-                else:
-                    response = openai.ChatCompletion.create(
-                        model=self.model_name,
-                        messages=inputs_list,
-                        max_tokens=self.max_tokens,
-                        temperature=self.temperature,
-                        stop=self.stop
-                    )
-                    # print(response.choices[0].message["content"].strip())
-                    return response.choices[0].message["content"].strip()
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=inputs_list,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    stop=self.stop
+                )
+                return response.choices[0].message.content
             except Exception as e:
                 attempt += 1
                 print(f"Attempt {attempt} failed with error: {e}")
