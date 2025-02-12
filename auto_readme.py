@@ -57,6 +57,8 @@ class AutoReadme:
         logging.debug(scripts_description)
         with open(os.path.join(self.out_put_dir, "SCRIPT_DESCRIPTION.json"), "w", encoding='utf-8') as f:
             json.dump(scripts_description, f, ensure_ascii=False, indent=4)
+        # save script description to markdown
+        self.save_script_description_to_markdown(scripts_description)
         logging.info(f"Dependencies have been generated and saved to {self.out_put_dir}")
 
     def load_ignore_files(self):
@@ -218,6 +220,16 @@ class AutoReadme:
         logging.debug(f'*****')
         return answer
 
+    def save_script_description_to_markdown(self, script_description):
+        markdown = ""
+        for script, description in script_description.items():
+            markdown += f"# {script}\n{description}\n\n"
+        # save to file
+        with open(os.path.join(self.out_put_dir, "SCRIPT_DESCRIPTION.md"), "w", encoding='utf-8') as f:
+            f.write(markdown)
+        logging.info(
+            f"Script descriptions have been saved to {os.path.join(self.out_put_dir, 'SCRIPT_DESCRIPTION.md')}")
+
     def get_dependency_content(self):
         logging.info("Reading dependency content")
         files = os.listdir(self.out_put_dir)
@@ -308,7 +320,7 @@ if __name__ == "__main__":
                         help="Author's information of the project, including name, email, phone number, etc.")
 
     # Optional arguments with defaults set to None
-    parser.add_argument('--model_name', type=str, default=None, help="Model name for AutoReadme.")
+    parser.add_argument('--model_name', type=str, default="gpt-4o", help="Model name for AutoReadme.")
     parser.add_argument('--out_put_dir', type=str, default=None, help="Directory for dependencies.")
     parser.add_argument('--project_description', type=str, default=None, help="Description of the project.")
     parser.add_argument('--config_dir', type=str, default=None, help="Directory for configuration files.")

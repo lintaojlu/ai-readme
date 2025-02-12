@@ -2,12 +2,8 @@
   "OPENAI_CONFIG": {
     "OPENAI_KEYS_BASES": [
       {
-        "OPENAI_KEY": "your_openai_key",
-        "OPENAI_BASE": "https://api.openai.com/v1"
-      },
-      {
-        "OPENAI_KEY": "your_openai_key",
-        "OPENAI_BASE": ""
+        "OPENAI_KEY": "sk-d2VBg65MikWpuvdHogqwTjGkJOv1cSQAb1Gl7TItuue5lVUg",
+        "OPENAI_BASE": "https://api.deepbricks.ai/v1/"
       }
     ],
     "OPENAI_TEMPERATURE": 0.5,
