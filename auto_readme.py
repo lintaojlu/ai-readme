@@ -4,7 +4,7 @@ import fnmatch
 import json
 import logging
 import os
-from llm_api import get_model_answer
+from llm_api import ModelAPI
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -15,30 +15,76 @@ class AutoReadme:
     """
 
     def __init__(self, project_name, project_dir, author, author_info=None, model_name=None,
-                 out_put_dir=None, project_description=None, config_dir=None, language="en"):
+                 out_put_dir=None, project_description=None, config_dir=None, language="en", platform=None):
         self.project_name = project_name
         self.project_dir = project_dir
         self.project_description = project_description
         self.project_author = author
         self.project_author_info = author_info
         self.language = language
+        
+        # 设置默认模型名称
         if not model_name:
             model_name = "gpt-4o"
 
+        # 根据模型名称推断平台，如果没有指定平台的话
+        if not platform:
+            platform = self._infer_platform_from_model(model_name)
+
+        # 设置输出目录
         if out_put_dir is None:
             out_put_dir = os.path.join(ROOT_DIR, 'output', project_name).__str__()
             os.makedirs(out_put_dir, exist_ok=True)
         readme_path = os.path.join(out_put_dir, "README.md")
+        
+        # 设置配置目录
         if not config_dir:
             config_dir = os.path.join(ROOT_DIR, "config")
             os.makedirs(config_dir, exist_ok=True)
 
         self.config_dir = config_dir
         self.model = model_name
+        self.platform = platform
         self.out_put_dir = out_put_dir
         self.readme_path = readme_path
+        
+        # 初始化ModelAPI实例
+        try:
+            self.model_api = ModelAPI(platform=self.platform, model_name=self.model, config_dir=self.config_dir)
+            logging.info(f"ModelAPI initialized successfully with platform: {self.platform}, model: {self.model}")
+        except Exception as e:
+            logging.error(f"Failed to initialize ModelAPI: {e}")
+            raise e
+        
         logging.info(
-            f"AutoReadme initialized for {project_name}, project directory: {project_dir}, Author: {author}, Config directory: {config_dir}, Model: {model_name}")
+            f"AutoReadme initialized for {project_name}, project directory: {project_dir}, Author: {author}, Config directory: {config_dir}, Model: {model_name}, Platform: {platform}")
+
+    def _infer_platform_from_model(self, model_name: str) -> str:
+        """根据模型名称推断平台
+        
+        Args:
+            model_name: 模型名称
+            
+        Returns:
+            推断出的平台名称
+        """
+        model_name_lower = model_name.lower()
+        
+        # 根据模型名称中的关键词推断平台
+        if 'gpt' in model_name_lower or 'openai' in model_name_lower:
+            return 'openai'
+        elif 'gemini' in model_name_lower:
+            return 'gemini'
+        elif 'qwen' in model_name_lower or 'infingence' in model_name_lower:
+            return 'infingence'
+        elif 'deepseek' in model_name_lower or 'volcengine' in model_name_lower:
+            return 'volcengine'
+        elif 'deepbricks' in model_name_lower or 'dall-e' in model_name_lower:
+            return 'deepbricks'
+        else:
+            # 默认使用openai平台
+            logging.warning(f"Cannot infer platform from model name '{model_name}', defaulting to 'openai'")
+            return 'openai'
 
     def generate_dependency(self):
         logging.info(f"Generating project structure...")
@@ -198,7 +244,7 @@ class AutoReadme:
         )
         prompt = [{"role": "system", "content": sys_instruction}]
         logging.debug(f'prompt: {prompt}')
-        answer = get_model_answer(model_name=self.model, inputs_list=prompt, config_dir=self.config_dir)
+        answer = self.model_api.get_answer(prompt)
         requirements_list = parse_requirements_output(answer)
         return requirements_list
 
@@ -214,7 +260,7 @@ class AutoReadme:
             sys_instruction += "用中文回答。"
         prompt = [{"role": "system", "content": sys_instruction}, {"role": "user", "content": script_content}]
         logging.debug(f'prompt: {prompt}')
-        answer = get_model_answer(model_name=self.model, inputs_list=prompt, config_dir=self.config_dir)
+        answer = self.model_api.get_answer(prompt)
         logging.debug(f'***** description of {script_path} *****')
         logging.debug(f'{answer}')
         logging.debug(f'*****')
@@ -273,7 +319,7 @@ class AutoReadme:
             query += f"\n\n{title}:\n{content}"
         prompt = [{"role": "system", "content": sys_instruction}, {"role": "user", "content": query}]
         logging.debug(f'prompt: {prompt}')
-        answer = get_model_answer(model_name=self.model, inputs_list=prompt, config_dir=self.config_dir)
+        answer = self.model_api.get_answer(prompt)
         logging.debug(f'***** README *****')
         logging.debug(f'{answer}')
         logging.debug(f'*****')
@@ -295,6 +341,7 @@ def sample():
     project_dir = os.path.join(ROOT_DIR)
     author = "Lintao:lint22@mails.tsinghua.edu.cn"
     model_name = "gpt-4o"
+    platform = "openai"  # 明确指定平台
     project_description = "AutoReadme is a tool that automatically generates README files and dependencies for a given project directory."
     auto_readme = AutoReadme(
         project_name=project_name,
@@ -302,6 +349,7 @@ def sample():
         author=author,
         model_name=model_name,
         project_description=project_description,
+        platform=platform,
     )
     # auto_readme.generate_project_requirements()
     auto_readme.generate_dependency()
@@ -328,6 +376,10 @@ if __name__ == "__main__":
     # New optional 'language' argument
     parser.add_argument('--language', type=str, choices=['cn', 'en'], default='en',
                         help="Language for the project. Options: 'cn' or 'en'. Default is 'en'.")
+    
+    # New optional 'platform' argument
+    parser.add_argument('--platform', type=str, choices=['openai', 'gemini', 'infingence', 'deepbricks', 'volcengine'], default=None,
+                        help="Platform for the LLM API. Options: 'openai', 'gemini', 'infingence', 'deepbricks', 'volcengine'. If not specified, it will be inferred from the model name.")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -345,7 +397,8 @@ if __name__ == "__main__":
         out_put_dir=args.out_put_dir,
         project_description=args.project_description,
         config_dir=args.config_dir,
-        language=args.language
+        language=args.language,
+        platform=args.platform
     )
 
     # Generate dependency and README files

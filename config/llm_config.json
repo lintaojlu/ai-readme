@@ -1,12 +1,47 @@
 {
+  "GEMINI_CONFIG": {
+      "API_KEY": "your-gemini-api-key",
+      "MODELS": {
+          "gemini-2.0-flash": "gemini-2.0-flash",
+          "gemini-2.5-flash": "models/gemini-2.5-flash-preview-04-17"
+      },
+      "TEMPERATURE": 0.7,
+      "MAX_TOKENS": 4096,
+      "MAX_RETRIES": 5,
+      "ALLOW_ANY_MODEL": false
+  },
   "OPENAI_CONFIG": {
     "OPENAI_KEYS_BASES": [
       {
-        "OPENAI_KEY": "sk-d2VBg65MikWpuvdHogqwTjGkJOv1cSQAb1Gl7TItuue5lVUg",
-        "OPENAI_BASE": "https://api.deepbricks.ai/v1/"
+        "OPENAI_KEY": "your-openai-api-key",
+        "OPENAI_BASE": "https://apic3.a1r.cc/v1"
       }
     ],
-    "OPENAI_TEMPERATURE": 0.5,
-    "OPENAI_MAX_TOKENS": 4096
+    "OPENAI_TEMPERATURE": 0.7,
+    "MAX_RETRIES": 3
+  },
+  "INFINGENCE_CONFIG": {
+    "API_KEY": "your-infini-api-key",
+    "MODELS": {
+      "qwen2.5-7b-instruct": "https://cloud.infini-ai.com/maas/qwen2.5-7b-instruct/nvidia/chat/completions",
+      "qwen2.5-72b-instruct": "https://cloud.infini-ai.com/maas/qwen2.5-72b-instruct/nvidia/chat/completions"
+    },
+    "MAX_RETRIES": 3
+  },
+  "DEEPBRICKS_CONFIG": {
+    "API_KEY": "your-deepbricks-api-key",
+    "BASE_URL": "https://api.deepbricks.com/v1",
+    "MAX_RETRIES": 3
+  },
+  "VOLCENGINE_CONFIG": {
+    "API_KEY": "your-volcengine-api-key",
+    "BASE_URL": "https://ark.cn-beijing.volces.com/api/v3",
+    "MODELS": {
+      "deepseek-v3": "your-deepseek-v3-model-id"
+    },
+    "ALLOW_ANY_MODEL": false,
+    "MAX_TOKENS": 4096,
+    "TEMPERATURE": 0.7,
+    "MAX_RETRIES": 3
   }
 }
