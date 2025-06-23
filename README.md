@@ -1,115 +1,122 @@
 # AutoReadme
 
-## 项目简介
+AutoReadme is a Python tool that automatically generates comprehensive `README.md` files for your projects by analyzing the project structure, dependencies, and source code files. It leverages LLM (Large Language Model) capabilities to generate meaningful descriptions of your scripts and organizes all information into a professional README format.
 
-AutoReadme 是一个自动化工具，旨在为给定的项目目录生成 README 文件和相关依赖项（例如项目结构和 `requirements.txt`）。它通过分析项目目录、文件结构和依赖关系，自动生成详细的项目文档，减少人工干预。对于任何未知信息，工具将使用占位符 (`<>`) 填充。
+## Features
 
-## 配置
+- **Automatic Project Structure Analysis**: Scans your project directory and generates a structured overview
+- **Dependency Detection**: Identifies and includes project dependencies
+- **AI-Powered Descriptions**: Uses LLM to generate clear descriptions of your scripts
+- **Gitignore Support**: Respects `.gitignore` rules when scanning your project
+- **CLI Interface**: Simple command-line interface for easy integration into your workflow
+- **Configuration Management**: Supports both environment variables and config file for API settings
 
-AutoReadme 需要在 `config` 目录下提供一个 `llm_config.json` 配置文件。该文件包含语言模型所需的 API 密钥及其他参数设置。
+## Installation
 
-示例 `llm_config.json` 文件：
-
-```json
-{
-  "OPENAI_CONFIG": {
-    "OPENAI_KEYS_BASES": [
-      {
-        "OPENAI_KEY": "<your_openai_key>",
-        "OPENAI_BASE": "<your_openai_base>"
-      }
-    ],
-    "OPENAI_MAX_TOKENS": 1000,
-    "OPENAI_TEMPERATURE": 0.7
-  }
-}
-```
-
-## 安装方法
-
-请按照以下步骤安装和设置 AutoReadme：
-
-1. 克隆此仓库：
-   ```bash
-   git clone <repository_url>
-   cd <repository_directory>
-   ```
-
-2. 创建并激活虚拟环境：
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # Windows 用户请使用 `venv\Scripts\activate`
-   ```
-
-3. 安装所需依赖项：
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## 使用方法
-
-可以通过运行 `auto_readme.py` 脚本并传递必要的命令行参数来使用 AutoReadme。以下是一个示例：
+Since there's no `requirements.txt` file, you'll need to install the package directly. First, ensure you have Python 3.7+ installed, then:
 
 ```bash
-python auto_readme.py --project_name <Project_Name> --project_dir <Project_Directory> --project_description <Project_Description> --project_author <Author_Name>
+pip install -e .
 ```
 
-Python 代码示例：
+Or if you want to install it in development mode:
 
-```python
-from auto_readme import AutoReadme
-
-auto_readme = AutoReadme(
-    project_name="MyProject",
-    project_dir="./",
-    project_description="This is my project.",
-    project_author="Your Name"
-)
-auto_readme.generate_readme()
+```bash
+pip install -e /path/to/auto_readme
 ```
 
-## 输出
+## Configuration
 
-项目的预期输出包括：
+AutoReadme requires configuration for the LLM (likely OpenAI) API. You can configure it in two ways:
 
-- 在指定输出目录下生成的 `README.md` 文件。
-- 描述项目结构的 `PROJECT_STRUCTURE.md` 文件。
-- 列出项目依赖项的 `requirements.txt` 文件。
-- 脚本描述的 JSON 格式文件。
-
-## 贡献指南
-
-欢迎对 AutoReadme 项目进行贡献！请遵循以下步骤：
-
-1. Fork 本仓库。
-2. 创建一个新的分支：
+1. **Environment Variables**:
    ```bash
-   git checkout -b feature/my-feature
+   export OPENAI_API_KEY='your-api-key'
+   export OPENAI_BASE_URL='https://api.openai.com/v1'  # Optional
+   export MODEL_NAME='gpt-4o'  # Optional, defaults to gpt-4o
    ```
-3. 提交您的更改：
-   ```bash
-   git commit -m "Add new feature"
-   ```
-4. 推送到分支：
-   ```bash
-   git push origin feature/my-feature
-   ```
-5. 创建一个详细描述您更改的 Pull Request。
 
-请遵循以下编码标准：
+2. **Config File**:
+   The tool will automatically create and use a config file at `~/.config/autoreadme/user_config.json` if you prefer file-based configuration.
 
-- 编写清晰简洁的提交信息。
-- 遵循 PEP 8 Python 编码规范。
-- 确保您的代码通过所有测试。
+## Usage
 
-## 许可证
+Run AutoReadme from the command line:
 
-此项目基于 MIT 许可证发布。
+```bash
+autoreadme [project_dir]
+```
 
-## 联系方式
+Where `[project_dir]` is optional and defaults to the current working directory.
 
-如需帮助或有任何疑问，请联系项目维护者：
+### Example
 
-- Lin Tao: lint22@mails.tsinghua.edu.cn
+```bash
+# Generate README for current directory
+autoreadme
 
-感谢您对 AutoReadme 项目的关注和支持！
+# Generate README for specific project
+autoreadme /path/to/your/project
+```
+
+## Project Structure
+
+```
+auto_readme/
+    pyproject.toml
+    .gitignore
+src/
+    autoreadme/
+        config.py          # Configuration management
+        __init__.py        # Package initialization
+        llm.py             # LLM interface
+        core.py            # Main README generation logic
+        cli.py             # Command-line interface
+        utils/
+            file_helper.py # File operations and gitignore handling
+            __init__.py   # Utilities package initialization
+    autoreadme.egg-info/   # Package metadata
+```
+
+## Script Descriptions
+
+### `config.py`
+Manages configuration settings with the following features:
+- Checks for environment variables first (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_NAME)
+- Falls back to reading from a JSON config file if environment variables aren't set
+- Provides functions to save and retrieve configuration
+
+### `llm.py`
+Provides a simple interface for interacting with OpenAI's chat models:
+- Loads configuration to create an OpenAI client instance
+- Defaults to "gpt-4o" model if none is specified
+- Provides a `get_answer()` method for chat completions with basic error handling
+
+### `core.py`
+Main `AutoReadme` class that generates README files:
+- Scans project directory (respecting .gitignore)
+- Extracts dependencies
+- Uses LLM to generate script descriptions
+- Combines all information into a well-structured README.md
+- Uses `rich` library for formatted console output
+
+### `cli.py`
+Command-line interface for the tool:
+- Accepts optional project directory argument
+- Wraps the `AutoReadme` class functionality
+- Provides basic error handling and user feedback
+
+### `utils/file_helper.py`
+File operations utilities:
+- Reads and parses `.gitignore` files
+- Checks if paths should be ignored
+- Recursively searches directories while respecting ignore rules
+- Generates tree-like project structure representations
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+[MIT License](LICENSE) (Note: You may want to add a proper license file to your project)
