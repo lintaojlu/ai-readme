@@ -21,7 +21,11 @@ dependencies = [
     "openai>=1.0.0",
     "requests",
     "rich",
+    "drawsvg",
 ]
+
+[tool.setuptools.package-data]
+"readmecraft" = ["../BLANK_README.md"]
 
 [project.scripts]
 readmecraft = "readmecraft.utils.cli:main"
