@@ -3,12 +3,11 @@ import json
 import re
 import subprocess
 from rich.console import Console
-import drawsvg as draw
 from rich.progress import Progress
 from rich.table import Table
 from readmecraft.utils.llm import LLM
 from readmecraft.utils.file_handler import find_files, get_project_structure, load_gitignore_patterns
-from readmecraft.utils.logo_generator import generate_logo
+from readmecraft.utils.logo_generator import generate_logo_svg
 from .config import DEFAULT_IGNORE_PATTERNS, SCRIPT_PATTERNS, get_readme_template_path
 
 class ReadmeCraft:
@@ -32,10 +31,10 @@ class ReadmeCraft:
         structure = self._generate_project_structure()
         dependencies = self._generate_project_dependencies()
         descriptions = self._generate_script_descriptions()
-        logo_path = generate_logo(self.project_dir, self.config.get("repo_name", "Logo"), descriptions, self.llm, self.console)
+        logo_svg = generate_logo_svg(descriptions, self.llm, self.console)
 
         readme_content = self._generate_readme_content(
-            structure, dependencies, descriptions, logo_path
+            structure, dependencies, descriptions, logo_svg
         )
 
         with open(os.path.join(self.project_dir, "README.md"), "w") as f:
@@ -117,7 +116,7 @@ class ReadmeCraft:
         self.console.print("[green]✔ Script descriptions generated.[/green]")
         return json.dumps(descriptions, indent=2)
 
-    def _generate_readme_content(self, structure, dependencies, descriptions, logo_path):
+    def _generate_readme_content(self, structure, dependencies, descriptions, logo_svg):
         self.console.print("Generating README content...")
         try:
             template_path = get_readme_template_path()
@@ -141,8 +140,8 @@ class ReadmeCraft:
             # Remove all github-related badges and links if info is missing
             template = re.sub(r'\[\[(Contributors|Forks|Stargazers|Issues|project_license)-shield\]\]\[(Contributors|Forks|Stargazers|Issues|project_license)-url\]\n?', '', template)
 
-        if logo_path:
-            template = template.replace('images/logo.png', os.path.relpath(logo_path, self.project_dir))
+        if logo_svg:
+            template = template.replace('<img src="images/logo.png" alt="logo" width="200"/>', logo_svg)
         else:
             template = re.sub(r'<img src="images/logo.png".*>', '', template)
 
@@ -176,4 +175,6 @@ class ReadmeCraft:
         messages = [{"role": "user", "content": prompt}]
         readme = self.llm.get_answer(messages)
         self.console.print("[green]✔ README content generated.[/green]")
+        # 进行简单清洗，删除掉```readme```和```markdown```
+        readme = readme.replace("```readme", "").replace("```markdown", "").strip("```")
         return readme

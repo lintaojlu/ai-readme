@@ -1,66 +1,46 @@
 import os
 import re
-import requests
-import drawsvg as draw
 from rich.console import Console
 from readmecraft.utils.llm import LLM
 
-def generate_logo(project_dir, repo_name, descriptions, llm, console):
-    console.print("Generating project logo...")
+def generate_logo_svg(descriptions, llm, console):
+    console.print("Generating project logo as SVG...")
     try:
-        images_dir = os.path.join(project_dir, "images")
-        os.makedirs(images_dir, exist_ok=True)
-        logo_path = os.path.join(images_dir, "logo.png")
+        prompt = f"""Design a modern, minimalist SVG logo with these specifications:
 
-        if os.path.exists(logo_path):
-            console.print("[green]✔ Logo already exists.[/green]")
-            return logo_path
+**Design Guidelines**:
+1. Create a clean, professional, and visually appealing logo
+2. Use simple geometric shapes and minimal colors
+3. Ensure the design reflects the project's essence
+4. Make it memorable and distinctive
+5. Balance negative space effectively
 
-        prompt = f"Based on the project descriptions below, create a simple logo in drawio XML format. The logo should be clean and professional. Only return the XML code for the drawio diagram.\n\n{descriptions}"
+**Technical Requirements**:
+1. Pure SVG format for README.md embedding
+2. Width: 200px, Height: 60-100px (adaptive)
+3. Complete, standalone SVG code
+4. URI-encode special characters
+5. Code must start with <svg> and end with </svg>
+6. Optimize for both light and dark themes
+
+**Project Context**:
+{descriptions}
+
+Please provide only the SVG code, no explanations needed.
+"""
         messages = [{"role": "user", "content": prompt}]
-        drawio_code = llm.get_answer(messages)
+        svg_code = llm.get_answer(messages)
 
-        # Clean up the response to get only the XML
-        drawio_code_match = re.search(r'<mxGraphModel.*</mxGraphModel>', drawio_code, re.DOTALL)
-        if not drawio_code_match:
-            console.print("[red]Failed to get valid drawio XML from LLM.[/red]")
-            raise ValueError("No drawio XML found in LLM response")
-        drawio_code = drawio_code_match.group(0)
-
-        try:
-            # Convert drawio XML to PNG using diagrams.net service
-            export_url = "https://convert.diagrams.net/node/export"
-            payload = {
-                'xml': drawio_code,
-                'format': 'png',
-            }
-            
-            response = requests.post(export_url, data=payload)
-            response.raise_for_status()
-
-            with open(logo_path, 'wb') as f:
-                f.write(response.content)
-
-            console.print(f"[green]✔ Logo generated from drawio and saved at {logo_path}[/green]")
-            return logo_path
-        except Exception as e:
-            console.print(f"[red]Failed to convert drawio to png: {e}[/red]")
-            raise e # Reraise to be caught by the outer loop for fallback
+        # Clean up the response to get only the SVG
+        svg_code_match = re.search(r'<svg.*</svg>', svg_code, re.DOTALL)
+        if not svg_code_match:
+            console.print("[red]Failed to get valid SVG code from LLM.[/red]")
+            return None
+        
+        svg_code = svg_code_match.group(0)
+        console.print("[green]✔ SVG logo generated successfully.[/green]")
+        return svg_code
             
     except Exception as e:
-        console.print(f"[red]Failed to generate logo: {e}[/red]")
-        # If everything fails, try to generate a placeholder
-        try:
-            images_dir = os.path.join(project_dir, "images")
-            os.makedirs(images_dir, exist_ok=True)
-            logo_path = os.path.join(images_dir, "logo.png")
-            console.print("Generating placeholder logo as a fallback...")
-            d = draw.Drawing(200, 80, origin='center')
-            d.append(draw.Rectangle(-100, -40, 200, 80, fill='lightblue'))
-            d.append(draw.Text(repo_name, 20, 0, 0, fill='black', text_anchor='middle', dominant_baseline='middle'))
-            d.save_png(logo_path)
-            console.print(f"[green]✔ Placeholder logo generated at {logo_path}[/green]")
-            return logo_path
-        except Exception as final_e:
-            console.print(f"[red]Failed to generate placeholder logo: {final_e}[/red]")
-            return None
+        console.print(f"[red]Failed to generate SVG logo: {e}[/red]")
+        return None
