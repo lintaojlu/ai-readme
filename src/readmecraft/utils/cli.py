@@ -1,6 +1,7 @@
 import argparse
 import os
-from readmecraft.core import readmecraft
+from rich.console import Console
+from readmecraft.core import ReadmeCraft
 
 def main():
     parser = argparse.ArgumentParser(description="Automatically generate a README.md for your project.")
@@ -13,7 +14,11 @@ def main():
     args = parser.parse_args()
 
     try:
-        readme_generator = readmecraft(args.project_dir)
-        readme_generator.generate()
+        try:
+            readme_generator = ReadmeCraft(args.project_dir)
+            readme_generator.generate()
+        except FileNotFoundError as e:
+            console = Console()
+            console.print(f"[red]Error: {e}[/red]")
     except Exception as e:
         print(f"Error: {e}")

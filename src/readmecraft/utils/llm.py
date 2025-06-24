@@ -1,9 +1,9 @@
 from openai import OpenAI
-from readmecraft.config import get_config
+from readmecraft.config import get_llm_config
 
 class LLM:
     def __init__(self):
-        config = get_config()
+        config = get_llm_config()
         if not config:
             raise ValueError(
                 "API configuration not found. Please either set the OPENAI_API_KEY environment variable, "

@@ -1,155 +1,86 @@
-Here's a comprehensive README.md for your project with a clickable navigation bar:
+<div align="center">
 
-```markdown
-# readmecraft
+  <h3 align="center">ReadmeCraft</h3>
+  <p align="center">
+    An automated README.md generator for your projects
+    <br />
+    <a href="https://github.com/370025263/auto_readme"><strong>Explore the docs »</strong></a>
+    ·
+    <a href="https://github.com/370025263/auto_readme/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/370025263/auto_readme/issues">Request Feature</a>
+  </p>
+</div>
 
-[![Project Overview](#project-overview)](#project-overview) | [![Installation](#installation)](#installation) | [![Project Structure](#project-structure)](#project-structure) | [![Dependencies](#dependencies)](#dependencies) | [![Script Documentation](#script-documentation)](#script-documentation) | [![Usage](#usage)](#usage)
+---
 
-## Project Overview <a name="project-overview"></a>
+## About The Project
 
-readmecraft is an intelligent Python tool that automatically generates professional `README.md` files for your projects by analyzing the project structure, dependencies, and scripts. It uses LLM (Language Model) capabilities to create comprehensive documentation with minimal user input.
+ReadmeCraft is a powerful tool that automatically generates professional `README.md` files for your projects. It analyzes your project structure, dependencies, and scripts to create comprehensive documentation with minimal effort. The tool integrates with LLMs (Large Language Models) to generate meaningful descriptions and even creates placeholder logos for your projects.
 
-Key Features:
-- Automatic project structure visualization
-- Dependency analysis
-- Intelligent script documentation generation
-- Customizable output with navigation
-- .gitignore-aware file processing
-- Rich console feedback with progress tracking
+## Built With
 
-## Installation <a name="installation"></a>
+- Python
+- OpenAI API (for LLM integration)
+- Rich (for console formatting)
+- DrawSVG (for logo generation)
 
-To install readmecraft:
+## Getting Started
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/readmecraft.git
-   cd readmecraft
+### Prerequisites
+
+- Python 3.7+
+- OpenAI API key (if using LLM features)
+- Git (for repository information extraction)
+
+### Installation
+
+1. Clone the repository
+   ```sh
+   git clone https://github.com/370025263/auto_readme.git
+   ```
+2. Install dependencies
+   ```sh
+   pip install -e .
    ```
 
-2. Install using pip:
-   ```bash
-   pip install .
-   ```
+## Usage
 
-3. Configure your OpenAI API settings (required for script analysis):
-   ```bash
-   readmecraft configure --api-key YOUR_OPENAI_API_KEY
-   ```
-
-## Project Structure <a name="project-structure"></a>
-
-```
-auto_readme/
-    source.env
-    pyproject.toml
-    BLANK_README.md
-    README.md
-    .gitignore
-tests/
-src/
-    readmecraft/
-        config.py
-        __init__.py
-        core.py
-        utils/
-            file_helper.py
-            __init__.py
-            llm.py
-            cli.py
-    readmecraft.egg-info/
-        PKG-INFO
-        SOURCES.txt
-        entry_points.txt
-        requires.txt
-        top_level.txt
-        dependency_links.txt
+Run the following command in your project directory:
+```sh
+python -m readmecraft
 ```
 
-## Dependencies <a name="dependencies"></a>
-
-This project uses Python's modern packaging system with `pyproject.toml` instead of `requirements.txt`. The main dependencies include:
-
-- Python 3.8+
-- openai (for LLM integration)
-- rich (for console formatting)
-- pathlib (for cross-platform path handling)
-- fnmatch (for pattern matching)
-
-All dependencies will be automatically installed when installing the package via pip.
-
-## Script Documentation <a name="script-documentation"></a>
-
-### Core Modules
-
-#### `config.py`
-Manages API settings for OpenAI with environment variable and JSON file support. Provides functions for retrieving and saving configurations with rich console feedback.
-
-#### `core.py`
-The main module that generates README files by analyzing project structure, dependencies, and scripts. Uses LLM for content generation and rich for output formatting.
-
-#### `file_helper.py`
-Handles project directory operations while respecting .gitignore rules. Provides file searching and project structure visualization capabilities.
-
-#### `llm.py`
-Wrapper for OpenAI's chat models with configuration handling and error management.
-
-#### `cli.py`
-Command-line interface for the readmecraft tool, accepting project directory input and handling generation errors.
-
-### Utility Modules
-
-#### `__init__.py` files
-Package initialization files that provide module namespace organization.
-
-## Usage <a name="usage"></a>
-
-To generate a README for your project:
-
-1. Navigate to your project directory:
-   ```bash
-   cd /path/to/your/project
-   ```
-
-2. Run readmecraft:
-   ```bash
-   readmecraft generate
-   ```
-
-3. (Optional) Specify a different directory:
-   ```bash
-   readmecraft generate --project-dir /path/to/other/project
-   ```
-
-4. View the generated `README.md` in your project root directory.
-
-### Advanced Options
-
-- Use `--verbose` for detailed progress output
-- `--model` to specify a different OpenAI model
-- `--output` to change the output filename
-
-Example with options:
-```bash
-readmecraft generate --project-dir ./my_project --model gpt-4 --output PROJECT_README.md --verbose
-```
+The tool will:
+1. Analyze your project structure
+2. Generate descriptions for your scripts
+3. Create a professional README.md file
+4. Optionally generate a project logo
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
-[MIT License](LICENSE)
-```
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-This README includes:
-1. A clickable navigation bar at the top
-2. All required sections with proper anchors
-3. Comprehensive documentation of each script
-4. Clear installation and usage instructions
-5. Proper Markdown formatting throughout
-6. Project structure visualization
-7. Dependency information
+## Contact
 
-The navigation bar allows users to quickly jump to any section while maintaining a clean, professional appearance.
+[@virtueOre91](https://twitter.com/virtueOre91) - m370025263@gmail.com
+
+Project Link: [https://github.com/370025263/auto_readme](https://github.com/370025263/auto_readme)
+
+## Acknowledgments
+
+* [OpenAI](https://openai.com)
+* [Rich](https://github.com/Textualize/rich)
+* [DrawSVG](https://github.com/cduck/drawsvg)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
