@@ -1,6 +1,7 @@
 import os
 import json
 from pathlib import Path
+from importlib import resources
 from rich import print
 
 # Default ignore patterns for project structure analysis
@@ -67,17 +68,11 @@ def get_llm_config():
 
 def get_readme_template_path():
     """Gets the path to the BLANK_README.md template."""
-    # Path when installed as a package
-    package_path = Path(__file__).parent.parent.parent / 'BLANK_README.md'
-    if package_path.exists():
-        return str(package_path)
-    # Fallback for local development
-    local_path = Path.cwd() / 'BLANK_README.md'
-    if local_path.exists():
-        return str(local_path)
-    raise FileNotFoundError("BLANK_README.md not found in package or current directory.")
-
-    return None
+    try:
+        with resources.path('readmecraft', 'BLANK_README.md') as p:
+            return str(p)
+    except FileNotFoundError:
+        raise FileNotFoundError("BLANK_README.md not found in package.")
 
 def save_config(config):
     """
