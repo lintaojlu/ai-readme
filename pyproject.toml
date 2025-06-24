@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "readmecraft"
-version = "0.1.7"
+version = "0.1.8"
 authors = [
   { name="stone91", email="m370025263@gmail.com" },
   { name="lintao", email="lint22@mails.tsinghua.edu.cn"},
@@ -22,6 +22,7 @@ dependencies = [
     "requests",
     "rich",
     "drawsvg",
+    "cairosvg"
 ]
 
 [tool.setuptools.packages.find]
