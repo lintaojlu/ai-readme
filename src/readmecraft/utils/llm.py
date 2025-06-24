@@ -1,11 +1,14 @@
 from openai import OpenAI
-from .config import get_config
+from readmecraft.config import get_config
 
 class LLM:
     def __init__(self):
         config = get_config()
         if not config:
-            raise ValueError("API configuration not found.")
+            raise ValueError(
+                "API configuration not found. Please either set the OPENAI_API_KEY environment variable, "
+                "or create a configuration file at ~/.config/readmecraft/user_config.json"
+            )
         
         self.client = OpenAI(
             api_key=config.get("api_key"),

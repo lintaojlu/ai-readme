@@ -3,10 +3,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "autoreadme"
+name = "readmecraft"
 version = "0.1.0"
 authors = [
-  { name="Your Name", email="you@example.com" },
+  { name="stone91", email="m370025263@gmail.com" },
+  { name="lintao", email="lint22@mails.tsinghua.edu.cn"},
 ]
 description = "A tool to automatically generate README files for your projects."
 readme = "README.md"
@@ -23,8 +24,8 @@ dependencies = [
 ]
 
 [project.scripts]
-autoreadme = "autoreadme.cli:main"
+readmecraft = "readmecraft.utils.cli:main"
 
 [project.urls]
-"Homepage" = "https://github.com/your-username/autoreadme"
-"Bug Tracker" = "https://github.com/your-username/autoreadme/issues"
+"Homepage" = "https://github.com/lintaojlu/auto_readme"
+"Bug Tracker" = "https://github.com/lintaojlu/auto_readme/issues"

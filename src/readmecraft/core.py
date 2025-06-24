@@ -3,10 +3,10 @@ import json
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
-from .llm import LLM
-from .utils.file_helper import find_files, get_project_structure, load_gitignore_patterns
+from readmecraft.utils.llm import LLM
+from readmecraft.utils.file_helper import find_files, get_project_structure, load_gitignore_patterns
 
-class AutoReadme:
+class readmecraft:
     def __init__(self, project_dir):
         self.project_dir = project_dir
         self.llm = LLM()
@@ -77,7 +77,7 @@ class AutoReadme:
 
     def _generate_readme_content(self, structure, dependencies, descriptions):
         prompt = f"""
-        Please generate a README.md for a project with the following details:
+        Please generate a README.md for a project with the following details. The README should include a clickable navigation bar at the top that allows users to quickly jump to different sections:
 
         **Project Structure:**
         {structure}
@@ -88,7 +88,19 @@ class AutoReadme:
         **Script Descriptions:**
         {descriptions}
 
-        The README should be comprehensive and well-structured.
+        Requirements for the README:
+        1. Start with a navigation bar at the top containing links to all major sections
+        2. Each section should have a proper heading with an anchor that can be linked to
+        3. The navigation bar should use markdown link syntax like [Section Name](#section-name)
+        4. Include at least these sections in the navigation:
+           - Project Overview
+           - Installation
+           - Project Structure
+           - Dependencies
+           - Script Documentation
+           - Usage
+        5. The README should be comprehensive and well-structured
+        6. Use proper markdown formatting throughout the document
         """
         messages = [{"role": "user", "content": prompt}]
         return self.llm.get_answer(messages)
