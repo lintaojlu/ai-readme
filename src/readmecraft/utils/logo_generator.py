@@ -2,10 +2,17 @@ import os
 import re
 from rich.console import Console
 from readmecraft.utils.llm import LLM
+from readmecraft.utils.image_converter import convert_svg_to_png
 
-def generate_logo_svg(descriptions, llm, console):
-    console.print("Generating project logo as SVG...")
+def generate_logo(project_dir, descriptions, llm, console):
+    console.print("Generating project logo...")
     try:
+        # 创建 images 目录
+        images_dir = os.path.join(project_dir, "images")
+        os.makedirs(images_dir, exist_ok=True)
+        svg_path = os.path.join(images_dir, "logo.svg")
+        png_path = os.path.join(images_dir, "logo.png")
+
         prompt = f"""Design a modern, minimalist SVG logo with these specifications:
 
 **Design Guidelines**:
@@ -38,9 +45,18 @@ Please provide only the SVG code, no explanations needed.
             return None
         
         svg_code = svg_code_match.group(0)
-        console.print("[green]✔ SVG logo generated successfully.[/green]")
-        return svg_code
+        
+        # 保存 SVG 文件
+        with open(svg_path, 'w', encoding='utf-8') as f:
+            f.write(svg_code)
+        console.print(f"[green]✔ SVG logo saved to {svg_path}[/green]")
+
+        # 转换为 PNG
+        convert_svg_to_png(svg_code, png_path)
+        console.print(f"[green]✔ PNG logo converted and saved to {png_path}[/green]")
+
+        return png_path
             
     except Exception as e:
-        console.print(f"[red]Failed to generate SVG logo: {e}[/red]")
+        console.print(f"[red]Failed to generate logo: {e}[/red]")
         return None

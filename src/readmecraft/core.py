@@ -7,7 +7,7 @@ from rich.progress import Progress
 from rich.table import Table
 from readmecraft.utils.llm import LLM
 from readmecraft.utils.file_handler import find_files, get_project_structure, load_gitignore_patterns
-from readmecraft.utils.logo_generator import generate_logo_svg
+from readmecraft.utils.logo_generator import generate_logo
 from .config import DEFAULT_IGNORE_PATTERNS, SCRIPT_PATTERNS, get_readme_template_path
 
 class ReadmeCraft:
@@ -31,10 +31,10 @@ class ReadmeCraft:
         structure = self._generate_project_structure()
         dependencies = self._generate_project_dependencies()
         descriptions = self._generate_script_descriptions()
-        logo_svg = generate_logo_svg(descriptions, self.llm, self.console)
+        logo_path = generate_logo(self.project_dir, descriptions, self.llm, self.console)
 
         readme_content = self._generate_readme_content(
-            structure, dependencies, descriptions, logo_svg
+            structure, dependencies, descriptions, logo_path
         )
 
         with open(os.path.join(self.project_dir, "README.md"), "w") as f:
@@ -116,7 +116,7 @@ class ReadmeCraft:
         self.console.print("[green]✔ Script descriptions generated.[/green]")
         return json.dumps(descriptions, indent=2)
 
-    def _generate_readme_content(self, structure, dependencies, descriptions, logo_svg):
+    def _generate_readme_content(self, structure, dependencies, descriptions, logo_path):
         self.console.print("Generating README content...")
         try:
             template_path = get_readme_template_path()
@@ -140,8 +140,10 @@ class ReadmeCraft:
             # Remove all github-related badges and links if info is missing
             template = re.sub(r'\[\[(Contributors|Forks|Stargazers|Issues|project_license)-shield\]\]\[(Contributors|Forks|Stargazers|Issues|project_license)-url\]\n?', '', template)
 
-        if logo_svg:
-            template = template.replace('<img src="images/logo.png" alt="logo" width="200"/>', logo_svg)
+        if logo_path:
+            # Use relative path for the logo in README
+            relative_logo_path = os.path.relpath(logo_path, self.project_dir)
+            template = template.replace('images/logo.png', relative_logo_path)
         else:
             template = re.sub(r'<img src="images/logo.png".*>', '', template)
 
