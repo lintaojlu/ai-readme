@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "readmecraft"
-version = "0.1.2"
+version = "0.1.3"
 authors = [
   { name="stone91", email="m370025263@gmail.com" },
   { name="lintao", email="lint22@mails.tsinghua.edu.cn"},
@@ -24,8 +24,8 @@ dependencies = [
     "drawsvg",
 ]
 
-[tool.setuptools.package-data]
-"readmecraft" = ["../BLANK_README.md"]
+[tool.setuptools]
+include-package-data = true
 
 [project.scripts]
 readmecraft = "readmecraft.utils.cli:main"
