@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "readmecraft"
+version = "0.1.8"
+authors = [
+  { name="stone91", email="m370025263@gmail.com" },
+  { name="lintao", email="lint22@mails.tsinghua.edu.cn"},
+]
+description = "A tool to automatically generate README files for your projects."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "openai>=1.0.0",
+    "requests",
+    "rich",
+    "drawsvg",
+    "cairosvg"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+readmecraft = ["*.md"]
+
+[project.scripts]
+readmecraft = "readmecraft.utils.cli:main"
+
+[project.urls]
+"Homepage" = "https://github.com/lintaojlu/auto_readme"
+"Bug Tracker" = "https://github.com/lintaojlu/auto_readme/issues"

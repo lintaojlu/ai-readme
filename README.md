@@ -1,115 +1,108 @@
-# AutoReadme
 
-## 项目简介
+<p align="center">
+  <img src="images/logo.png" alt="logo" width="200"/>
+</p>
+<h3 align="center">ReadmeCraft</h3>
+<p align="center">
+  An automated README.md generator that creates professional documentation for your projects with AI assistance.
+  <br />
+  ·
+  ·
+</p>
+</div>
 
-AutoReadme 是一个自动化工具，旨在为给定的项目目录生成 README 文件和相关依赖项（例如项目结构和 `requirements.txt`）。它通过分析项目目录、文件结构和依赖关系，自动生成详细的项目文档，减少人工干预。对于任何未知信息，工具将使用占位符 (`<>`) 填充。
+---
 
-## 配置
+## About The Project
 
-AutoReadme 需要在 `config` 目录下提供一个 `llm_config.json` 配置文件。该文件包含语言模型所需的 API 密钥及其他参数设置。
+ReadmeCraft is a Python-based tool that automatically generates comprehensive `README.md` files for software projects. It analyzes project structure, dependencies, and scripts to create professional documentation with minimal user input. The tool leverages AI to generate descriptions, create project logos, and format content according to best practices.
 
-示例 `llm_config.json` 文件：
+Key features:
+- Automatic project structure analysis
+- AI-powered script descriptions
+- Dependency detection
+- Logo generation
+- Git integration
+- Customizable templates
 
-```json
-{
-  "OPENAI_CONFIG": {
-    "OPENAI_KEYS_BASES": [
-      {
-        "OPENAI_KEY": "<your_openai_key>",
-        "OPENAI_BASE": "<your_openai_base>"
-      }
-    ],
-    "OPENAI_MAX_TOKENS": 1000,
-    "OPENAI_TEMPERATURE": 0.7
-  }
-}
+## Built With
+
+- Python
+- cairosvg (for SVG to PNG conversion)
+- Rich (for console formatting)
+- OpenAI API (for AI-powered content generation)
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.7+
+- OpenAI API key (for AI features)
+- cairosvg dependencies (libcairo2 on Linux)
+
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/your_username/readmecraft.git
+   ```
+2. Install dependencies:
+   ```sh
+   pip install -e .
+   ```
+3. Set up your OpenAI API key:
+   ```sh
+   export OPENAI_API_KEY='your-api-key'
+   ```
+
+## Usage
+
+Run the tool from the command line:
+```sh
+python -m readmecraft.utils.cli /path/to/your/project
 ```
 
-## 安装方法
+The tool will:
+1. Analyze your project structure
+2. Generate a logo
+3. Create a comprehensive README.md file
 
-请按照以下步骤安装和设置 AutoReadme：
+## Contributing
 
-1. 克隆此仓库：
-   ```bash
-   git clone <repository_url>
-   cd <repository_directory>
-   ```
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-2. 创建并激活虚拟环境：
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # Windows 用户请使用 `venv\Scripts\activate`
-   ```
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-3. 安装所需依赖项：
-   ```bash
-   pip install -r requirements.txt
-   ```
+## License
 
-## 使用方法
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-可以通过运行 `auto_readme.py` 脚本并传递必要的命令行参数来使用 AutoReadme。以下是一个示例：
+## Contact
 
-```bash
-python auto_readme.py --project_name <Project_Name> --project_dir <Project_Directory> --project_description <Project_Description> --project_author <Author_Name>
-```
+Your Name - [@your_twitter](https://twitter.com/your_twitter) - your.email@example.com
 
-Python 代码示例：
+Project Link: [https://github.com/your_username/readmecraft](https://github.com/your_username/readmecraft)
 
-```python
-from auto_readme import AutoReadme
+## Acknowledgments
 
-auto_readme = AutoReadme(
-    project_name="MyProject",
-    project_dir="./",
-    project_description="This is my project.",
-    project_author="Your Name"
-)
-auto_readme.generate_readme()
-```
+* [cairosvg](https://cairosvg.org/)
+* [Rich](https://github.com/Textualize/rich)
+* [OpenAI](https://openai.com/)
 
-## 输出
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-项目的预期输出包括：
-
-- 在指定输出目录下生成的 `README.md` 文件。
-- 描述项目结构的 `PROJECT_STRUCTURE.md` 文件。
-- 列出项目依赖项的 `requirements.txt` 文件。
-- 脚本描述的 JSON 格式文件。
-
-## 贡献指南
-
-欢迎对 AutoReadme 项目进行贡献！请遵循以下步骤：
-
-1. Fork 本仓库。
-2. 创建一个新的分支：
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-3. 提交您的更改：
-   ```bash
-   git commit -m "Add new feature"
-   ```
-4. 推送到分支：
-   ```bash
-   git push origin feature/my-feature
-   ```
-5. 创建一个详细描述您更改的 Pull Request。
-
-请遵循以下编码标准：
-
-- 编写清晰简洁的提交信息。
-- 遵循 PEP 8 Python 编码规范。
-- 确保您的代码通过所有测试。
-
-## 许可证
-
-此项目基于 MIT 许可证发布。
-
-## 联系方式
-
-如需帮助或有任何疑问，请联系项目维护者：
-
-- Lin Tao: lint22@mails.tsinghua.edu.cn
-
-感谢您对 AutoReadme 项目的关注和支持！
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/your_username/readmecraft.svg?style=for-the-badge
+[contributors-url]: https://github.com/your_username/readmecraft/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/your_username/readmecraft.svg?style=for-the-badge
+[forks-url]: https://github.com/your_username/readmecraft/network/members
+[stars-shield]: https://img.shields.io/github/stars/your_username/readmecraft.svg?style=for-the-badge
+[stars-url]: https://github.com/your_username/readmecraft/stargazers
+[issues-shield]: https://img.shields.io/github/issues/your_username/readmecraft.svg?style=for-the-badge
+[issues-url]: https://github.com/your_username/readmecraft/issues
+[license-shield]: https://img.shields.io/github/license/your_username/readmecraft.svg?style=for-the-badge
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
