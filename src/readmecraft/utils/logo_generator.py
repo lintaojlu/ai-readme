@@ -1,62 +1,71 @@
 import os
-import re
 from rich.console import Console
-from readmecraft.utils.llm import LLM
-from readmecraft.utils.image_converter import convert_svg_to_png
+from readmecraft.utils.model_client import ModelClient
 
-def generate_logo(project_dir, descriptions, llm, console):
+def generate_logo(project_dir, descriptions, model_client, console):
+    """
+    根据项目描述生成项目logo图片
+    
+    Args:
+        project_dir: 项目目录路径
+        descriptions: 项目描述信息
+        model_client: 模型客户端实例
+        console: 控制台输出对象
+        
+    Returns:
+        str: 生成的logo图片路径，失败返回None
+    """
     console.print("Generating project logo...")
     try:
         # 创建 images 目录
         images_dir = os.path.join(project_dir, "images")
         os.makedirs(images_dir, exist_ok=True)
-        svg_path = os.path.join(images_dir, "logo.svg")
         png_path = os.path.join(images_dir, "logo.png")
 
-        prompt = f"""Design a modern, minimalist SVG logo with these specifications:
+        # 第一步：根据项目描述生成logo描述prompt
+        description_prompt = f"""基于以下项目信息，生成一个专业的logo设计描述：
 
-**Design Guidelines**:
-1. Create a clean, professional, and visually appealing logo
-2. Use simple geometric shapes and minimal colors
-3. Ensure the design reflects the project's essence
-4. Make it memorable and distinctive
-5. Balance negative space effectively
-
-**Technical Requirements**:
-1. Pure SVG format for README.md embedding
-2. Width: 200px, Height: 60-100px (adaptive)
-3. Complete, standalone SVG code
-4. URI-encode special characters
-5. Code must start with <svg> and end with </svg>
-6. Optimize for both light and dark themes
-
-**Project Context**:
+**项目信息**:
 {descriptions}
 
-Please provide only the SVG code, no explanations needed.
-"""
-        messages = [{"role": "user", "content": prompt}]
-        svg_code = llm.get_answer(messages)
+请生成一个简洁、专业的logo设计描述，要求：
+1. 描述要体现项目的核心功能和特点
+2. 风格要现代、简约、专业
+3. 适合作为项目logo使用
+4. 包含颜色建议和设计元素
+5. 用英文描述，50字以内
 
-        # Clean up the response to get only the SVG
-        svg_code_match = re.search(r'<svg.*</svg>', svg_code, re.DOTALL)
-        if not svg_code_match:
-            console.print("[red]Failed to get valid SVG code from LLM.[/red]")
+只返回logo设计描述，不要其他解释。
+"""
+        
+        # 获取logo描述
+        logo_description = model_client.get_answer(description_prompt)
+        console.print(f"[cyan]Logo 描述: {logo_description}[/cyan]")
+        
+        # 第二步：使用logo描述生成图片
+        image_prompt = f"A professional, modern, minimalist logo: {logo_description}"
+        console.print(f"[cyan]生成图片中...[/cyan]")
+        
+        # 调用文生图接口生成logo
+        image_result = model_client.get_image(image_prompt)
+        
+        if "error" in image_result:
+            console.print(f"[red]图片生成失败: {image_result['error']}[/red]")
             return None
         
-        svg_code = svg_code_match.group(0)
+        if not image_result["content"]:
+            console.print("[red]图片内容为空，生成失败[/red]")
+            return None
         
-        # 保存 SVG 文件
-        with open(svg_path, 'w', encoding='utf-8') as f:
-            f.write(svg_code)
-        console.print(f"[green]✔ SVG logo saved to {svg_path}[/green]")
-
-        # 转换为 PNG
-        convert_svg_to_png(svg_code, png_path)
-        console.print(f"[green]✔ PNG logo converted and saved to {png_path}[/green]")
-
+        # 保存图片文件
+        with open(png_path, 'wb') as f:
+            f.write(image_result["content"])
+        
+        console.print(f"[green]✔ Logo图片已保存到 {png_path}[/green]")
+        console.print(f"[green]✔ 图片URL: {image_result['url']}[/green]")
+        
         return png_path
             
     except Exception as e:
-        console.print(f"[red]Failed to generate logo: {e}[/red]")
+        console.print(f"[red]生成logo失败: {e}[/red]")
         return None
