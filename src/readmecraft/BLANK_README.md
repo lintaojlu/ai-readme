@@ -1,6 +1,6 @@
-<div<p align="center">
+<div align="center">
   <img src="images/logo.png" alt="logo" width="200"/>
-</p>  <h3 align="center">{{project_title}}</h3>
+  <h3 align="center">{{project_title}}</h3>
   <p align="center">
     {{project_description}}
     <br />

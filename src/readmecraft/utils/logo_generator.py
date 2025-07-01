@@ -1,62 +1,71 @@
 import os
-import re
 from rich.console import Console
-from readmecraft.utils.llm import LLM
-from readmecraft.utils.image_converter import convert_svg_to_png
+from readmecraft.utils.model_client import ModelClient
 
-def generate_logo(project_dir, descriptions, llm, console):
+def generate_logo(project_dir, descriptions, model_client, console):
+    """
+    Generate project logo image based on project description
+    
+    Args:
+        project_dir: Project directory path
+        descriptions: Project description information
+        model_client: Model client instance
+        console: Console output object
+        
+    Returns:
+        str: Generated logo image path, returns None if failed
+    """
     console.print("Generating project logo...")
     try:
-        # 创建 images 目录
+        # Create images directory
         images_dir = os.path.join(project_dir, "images")
         os.makedirs(images_dir, exist_ok=True)
-        svg_path = os.path.join(images_dir, "logo.svg")
         png_path = os.path.join(images_dir, "logo.png")
 
-        prompt = f"""Design a modern, minimalist SVG logo with these specifications:
+        # Step 1: Generate logo description prompt based on project description
+        description_prompt = f"""Based on the following project information, generate a professional logo design description:
 
-**Design Guidelines**:
-1. Create a clean, professional, and visually appealing logo
-2. Use simple geometric shapes and minimal colors
-3. Ensure the design reflects the project's essence
-4. Make it memorable and distinctive
-5. Balance negative space effectively
-
-**Technical Requirements**:
-1. Pure SVG format for README.md embedding
-2. Width: 200px, Height: 60-100px (adaptive)
-3. Complete, standalone SVG code
-4. URI-encode special characters
-5. Code must start with <svg> and end with </svg>
-6. Optimize for both light and dark themes
-
-**Project Context**:
+**Project Information**:
 {descriptions}
 
-Please provide only the SVG code, no explanations needed.
-"""
-        messages = [{"role": "user", "content": prompt}]
-        svg_code = llm.get_answer(messages)
+Please generate a concise, professional logo design description with the following requirements:
+1. Description should reflect the core functionality and features of the project
+2. Style should be modern, minimalist, and professional
+3. Suitable for use as a project logo
+4. Include color suggestions and design elements
+5. Describe in English, within 50 words
 
-        # Clean up the response to get only the SVG
-        svg_code_match = re.search(r'<svg.*</svg>', svg_code, re.DOTALL)
-        if not svg_code_match:
-            console.print("[red]Failed to get valid SVG code from LLM.[/red]")
+Return only the logo design description, no other explanations.
+"""
+        
+        # Get logo description
+        logo_description = model_client.get_answer(description_prompt)
+        console.print(f"[cyan]Logo Description: {logo_description}[/cyan]")
+        
+        # Step 2: Generate image using logo description
+        image_prompt = f"A professional, modern, minimalist logo: {logo_description}, don't include any text in the image"
+        console.print(f"[cyan]Generating image...[/cyan]")
+        
+        # Call text-to-image API to generate logo
+        image_result = model_client.get_image(image_prompt)
+        
+        if "error" in image_result:
+            console.print(f"[red]Image generation failed: {image_result['error']}[/red]")
             return None
         
-        svg_code = svg_code_match.group(0)
+        if not image_result["content"]:
+            console.print("[red]Image content is empty, generation failed[/red]")
+            return None
         
-        # 保存 SVG 文件
-        with open(svg_path, 'w', encoding='utf-8') as f:
-            f.write(svg_code)
-        console.print(f"[green]✔ SVG logo saved to {svg_path}[/green]")
-
-        # 转换为 PNG
-        convert_svg_to_png(svg_code, png_path)
-        console.print(f"[green]✔ PNG logo converted and saved to {png_path}[/green]")
-
+        # Save image file
+        with open(png_path, 'wb') as f:
+            f.write(image_result["content"])
+        
+        console.print(f"[green]✔ Logo image saved to {png_path}[/green]")
+        console.print(f"[green]✔ Image URL: {image_result['url']}[/green]")
+        
         return png_path
             
     except Exception as e:
-        console.print(f"[red]Failed to generate logo: {e}[/red]")
+        console.print(f"[red]Logo generation failed: {e}[/red]")
         return None
