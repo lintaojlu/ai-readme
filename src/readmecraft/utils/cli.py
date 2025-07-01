@@ -4,12 +4,12 @@ from readmecraft.core import ReadmeCraft
 
 def main():
     """
-    ReadmeCraft 命令行入口点
-    使用交互式界面获取项目路径和输出目录
+    ReadmeCraft command line entry point
+    Use interactive interface to get project path and output directory
     """
     parser = argparse.ArgumentParser(
-        description="ReadmeCraft - AI驱动的README文档生成器",
-        epilog="使用交互式界面配置项目路径和输出目录"
+        description="ReadmeCraft - AI-driven README documentation generator",
+        epilog="Use interactive interface to configure project path and output directory"
     )
     parser.add_argument(
         "--version", 
@@ -17,19 +17,19 @@ def main():
         version="ReadmeCraft 0.1.8"
     )
     
-    # 解析命令行参数（现在只有 --help 和 --version）
+    # Parse command line arguments (now only --help and --version)
     args = parser.parse_args()
 
     try:
-        # 使用交互式模式创建 ReadmeCraft 实例
+        # Create ReadmeCraft instance using interactive mode
         readme_generator = ReadmeCraft()
         readme_generator.generate()
     except KeyboardInterrupt:
         console = Console()
-        console.print("\n[yellow]操作已取消[/yellow]")
+        console.print("\n[yellow]Operation cancelled[/yellow]")
     except FileNotFoundError as e:
         console = Console()
-        console.print(f"[red]错误: {e}[/red]")
+        console.print(f"[red]Error: {e}[/red]")
     except Exception as e:
         console = Console()
-        console.print(f"[red]发生错误: {e}[/red]")
+        console.print(f"[red]An error occurred: {e}[/red]")

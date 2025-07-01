@@ -1,4 +1,5 @@
 import os
+from rich.console import Console
 import requests
 from openai import OpenAI
 from typing import Optional, Dict, Union
@@ -6,42 +7,45 @@ from readmecraft.config import get_llm_config, get_t2i_config, validate_config
 
 
 class ModelClient:
-    """模型客户端类，用于LLM问答和文生图功能"""
+    """Model client class for LLM Q&A and text-to-image functionality"""
     
     def __init__(self, max_tokens: int = 1000, temperature: float = 0.7, 
                  image_size: str = "1024x1024", quality: str = "hd"):
         """
-        初始化模型客户端
+        Initialize model client
         
         Args:
-            max_tokens: 最大token数量
-            temperature: 温度参数
-            image_size: 图片尺寸
-            quality: 图片质量
+            max_tokens: Maximum number of tokens
+            temperature: Temperature parameter
+            image_size: Image size
+            quality: Image quality
         """
-        # 验证配置
+        # Validate configuration
         validate_config()
         
-        # 获取配置
+        # Get configurations
         self.llm_config = get_llm_config()
         self.t2i_config = get_t2i_config()
         
-        # 设置参数
+        # Set parameters
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.image_size = image_size
         self.quality = quality
         
-        # 初始化客户端
+        # Initialize console
+        self.console = Console()
+        
+        # Initialize clients
         self.llm_client = self._initialize_llm_client()
         self.t2i_client = self._initialize_t2i_client()
     
     def _initialize_llm_client(self) -> OpenAI:
         """
-        初始化LLM客户端
+        Initialize LLM client
         
         Returns:
-            配置好的LLM OpenAI客户端
+            Configured LLM OpenAI client
         """
         return OpenAI(
             base_url=self.llm_config["base_url"],
@@ -50,10 +54,10 @@ class ModelClient:
     
     def _initialize_t2i_client(self) -> OpenAI:
         """
-        初始化文生图客户端
+        Initialize text-to-image client
         
         Returns:
-            配置好的文生图OpenAI客户端
+            Configured text-to-image OpenAI client
         """
         return OpenAI(
             base_url=self.t2i_config["base_url"],
@@ -62,17 +66,17 @@ class ModelClient:
     
     def get_answer(self, question: str, model: Optional[str] = None) -> str:
         """
-        使用LLM获取问题的回答
+        Get answer to question using LLM
         
         Args:
-            question: 用户问题
-            model: 指定使用的模型，如果不指定则使用配置中的默认模型
+            question: User question
+            model: Specify model to use, if not specified use default model from config
             
         Returns:
-            LLM的回答
+            LLM answer
         """
         try:
-            # 使用指定模型或配置中的默认LLM模型
+            # Use specified model or default LLM model from config
             model_name = model or self.llm_config["model_name"]
             
             response = self.llm_client.chat.completions.create(
@@ -87,24 +91,24 @@ class ModelClient:
             return response.choices[0].message.content
             
         except Exception as e:
-            return f"获取回答时发生错误: {str(e)}"
+            return f"Error occurred while getting answer: {str(e)}"
     
     def get_image(self, prompt: str, model: Optional[str] = None) -> Dict[str, Union[str, bytes, None]]:
         """
-        使用文生图模型生成图片
+        Generate image using text-to-image model
         
         Args:
-            prompt: 图片描述prompt
-            model: 指定使用的模型，如果不指定则使用配置中的默认模型
+            prompt: Image description prompt
+            model: Specify model to use, if not specified use default model from config
             
         Returns:
-            包含url和content的字典: {"url": str, "content": bytes}
+            Dictionary containing url and content: {"url": str, "content": bytes}
         """
         try:
-            # 使用指定模型或配置中的默认文生图模型
+            # Use specified model or default text-to-image model from config
             model_name = model or self.t2i_config["model_name"]
             
-            # 生成图片请求参数
+            # Generate image request parameters
             generate_params = {
                 "model": model_name,
                 "prompt": prompt,
@@ -112,7 +116,7 @@ class ModelClient:
                 "size": self.image_size
             }
             
-            # 如果模型支持quality参数，则添加
+            # Add quality parameter if model supports it
             if model_name.startswith("dall-e"):
                 generate_params["quality"] = self.quality
             
@@ -120,11 +124,11 @@ class ModelClient:
             
             image_url = response.data[0].url
             
-            # 下载图片内容，增加重试机制
+            # Download image content with retry mechanism
             image_content = self._download_image_with_retry(image_url, max_retries=3)
             
-            print(f"图片URL: {image_url}")
-            print(f"图片内容大小: {len(image_content)} 字节")
+            self.console.print(f"Image URL: {image_url}")
+            self.console.print(f"Image content size: {len(image_content)} bytes")
             
             return {
                 "url": image_url,
@@ -135,32 +139,32 @@ class ModelClient:
             return {
                 "url": None,
                 "content": None,
-                "error": f"生成图片时发生错误: {str(e)}"
+                "error": f"Error occurred while generating image: {str(e)}"
             }
     
     def _download_image_with_retry(self, image_url: str, max_retries: int = 3) -> Optional[bytes]:
         """
-        带重试机制的图片下载
+        Download image with retry mechanism
         
         Args:
-            image_url: 图片URL
-            max_retries: 最大重试次数
+            image_url: Image URL
+            max_retries: Maximum retry attempts
             
         Returns:
-            图片内容字节，失败返回None
+            Image content bytes, returns None if failed
         """
         import time
         import ssl
         
         for attempt in range(max_retries):
             try:
-                print(f"正在下载图片 (尝试 {attempt + 1}/{max_retries})...")
+                self.console.print(f"Downloading image (attempt {attempt + 1}/{max_retries})...")
                 
-                # 设置请求参数，增加SSL容错
+                # Set request parameters with SSL tolerance
                 session = requests.Session()
-                session.verify = True  # 验证SSL证书
+                session.verify = True  # Verify SSL certificate
                 
-                # 增加User-Agent和其他头部
+                # Add User-Agent and other headers
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                     'Accept': 'image/*,*/*;q=0.8',
@@ -170,42 +174,42 @@ class ModelClient:
                 
                 response = session.get(
                     image_url, 
-                    timeout=60,  # 增加超时时间
+                    timeout=60,  # Increase timeout
                     headers=headers,
-                    stream=True  # 流式下载
+                    stream=True  # Stream download
                 )
                 response.raise_for_status()
                 
-                # 获取图片内容
+                # Get image content
                 image_content = response.content
-                print(f"图片下载成功，大小: {len(image_content)} 字节")
+                self.console.print(f"Image downloaded successfully, size: {len(image_content)} bytes")
                 return image_content
                 
             except (requests.exceptions.SSLError, ssl.SSLError) as ssl_error:
-                print(f"SSL错误 (尝试 {attempt + 1}/{max_retries}): {str(ssl_error)}")
+                self.console.print(f"SSL error (attempt {attempt + 1}/{max_retries}): {str(ssl_error)}")
                 if attempt == max_retries - 1:
-                    print("SSL连接持续失败，可能是服务器证书问题")
+                    self.console.print("SSL connection failed consistently, possibly server certificate issue")
                 else:
-                    time.sleep(2 ** attempt)  # 指数退避
+                    time.sleep(2 ** attempt)  # Exponential backoff
                     
             except requests.exceptions.ConnectionError as conn_error:
-                print(f"连接错误 (尝试 {attempt + 1}/{max_retries}): {str(conn_error)}")
+                self.console.print(f"Connection error (attempt {attempt + 1}/{max_retries}): {str(conn_error)}")
                 if attempt == max_retries - 1:
-                    print("网络连接持续失败")
+                    self.console.print("Network connection failed consistently")
                 else:
                     time.sleep(2 ** attempt)
                     
             except requests.exceptions.Timeout as timeout_error:
-                print(f"超时错误 (尝试 {attempt + 1}/{max_retries}): {str(timeout_error)}")
+                self.console.print(f"Timeout error (attempt {attempt + 1}/{max_retries}): {str(timeout_error)}")
                 if attempt == max_retries - 1:
-                    print("请求超时")
+                    self.console.print("Request timeout")
                 else:
                     time.sleep(1)
                     
             except Exception as e:
-                print(f"下载图片失败 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
+                self.console.print(f"Failed to download image (attempt {attempt + 1}/{max_retries}): {str(e)}")
                 if attempt == max_retries - 1:
-                    print("所有重试都失败了")
+                    self.console.print("All retry attempts failed")
                 else:
                     time.sleep(1)
         
@@ -213,10 +217,10 @@ class ModelClient:
 
     def get_current_settings(self) -> dict:
         """
-        获取当前的设置信息
+        Get current settings information
         
         Returns:
-            当前设置字典
+            Current settings dictionary
         """
         return {
             "llm_base_url": self.llm_config["base_url"],
@@ -231,51 +235,52 @@ class ModelClient:
 
 
 def main():
-    """主函数，演示模型客户端的使用"""
+    """Main function demonstrating model client usage"""
+    console = Console()
     try:
-        # 创建模型客户端实例
+        # Create model client instance
         client = ModelClient()
         
-        # 显示当前配置信息
-        print("=== 当前配置信息 ===")
+        # Display current configuration information
+        console.print("=== Current Configuration ===")
         settings = client.get_current_settings()
         for key, value in settings.items():
-            print(f"{key}: {value}")
-        print()
+            console.print(f"{key}: {value}")
+        console.print()
         
-        # 测试LLM问答功能
-        print("=== LLM问答测试 ===")
-        question = "什么是人工智能？请用50字以内简要回答。"
+        # Test LLM Q&A functionality
+        console.print("=== LLM Q&A Test ===")
+        question = "What is artificial intelligence? Please answer briefly in 50 words or less."
         answer = client.get_answer(question)
-        print(f"问题: {question}")
-        print(f"回答: {answer}")
-        print()
+        console.print(f"Question: {question}")
+        console.print(f"Answer: {answer}")
+        console.print()
         
-        # 测试文生图功能
-        print("=== 文生图测试 ===")
-        image_prompt = "一只可爱的小猫在花园里玩耍，卡通风格"
+        # Test text-to-image functionality
+        console.print("=== Text-to-Image Test ===")
+        image_prompt = "A cute cat playing in a garden, cartoon style"
         image_result = client.get_image(image_prompt)
-        print(f"图片描述: {image_prompt}")
+        console.print(f"Image description: {image_prompt}")
         
         if "error" in image_result:
-            print(f"生成失败: {image_result['error']}")
+            console.print(f"Generation failed: {image_result['error']}")
         else:
-            print(f"生成的图片URL: {image_result['url']}")
+            console.print(f"Generated image URL: {image_result['url']}")
             if image_result['content']:
                 content_size = len(image_result['content'])
-                print(f"图片内容大小: {content_size} 字节")
-                # 可以选择保存图片到本地
+                console.print(f"Image content size: {content_size} bytes")
+                # Option to save image locally
                 # with open("generated_image.png", "wb") as f:
                 #     f.write(image_result['content'])
-                # print("图片已保存为 generated_image.png")
+                # console.print("Image saved as generated_image.png")
             else:
-                print("图片内容下载失败")
-        print()
+                console.print("Image content download failed")
+        console.print()
         
-        print("=== 程序运行完成 ===")
+        console.print("=== Program completed ===")
         
     except Exception as e:
-        print(f"程序运行出错: {str(e)}")
+        console.print(f"Program error: {str(e)}")
 
 
 if __name__ == "__main__":

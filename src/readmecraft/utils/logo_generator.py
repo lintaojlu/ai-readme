@@ -4,68 +4,68 @@ from readmecraft.utils.model_client import ModelClient
 
 def generate_logo(project_dir, descriptions, model_client, console):
     """
-    根据项目描述生成项目logo图片
+    Generate project logo image based on project description
     
     Args:
-        project_dir: 项目目录路径
-        descriptions: 项目描述信息
-        model_client: 模型客户端实例
-        console: 控制台输出对象
+        project_dir: Project directory path
+        descriptions: Project description information
+        model_client: Model client instance
+        console: Console output object
         
     Returns:
-        str: 生成的logo图片路径，失败返回None
+        str: Generated logo image path, returns None if failed
     """
     console.print("Generating project logo...")
     try:
-        # 创建 images 目录
+        # Create images directory
         images_dir = os.path.join(project_dir, "images")
         os.makedirs(images_dir, exist_ok=True)
         png_path = os.path.join(images_dir, "logo.png")
 
-        # 第一步：根据项目描述生成logo描述prompt
-        description_prompt = f"""基于以下项目信息，生成一个专业的logo设计描述：
+        # Step 1: Generate logo description prompt based on project description
+        description_prompt = f"""Based on the following project information, generate a professional logo design description:
 
-**项目信息**:
+**Project Information**:
 {descriptions}
 
-请生成一个简洁、专业的logo设计描述，要求：
-1. 描述要体现项目的核心功能和特点
-2. 风格要现代、简约、专业
-3. 适合作为项目logo使用
-4. 包含颜色建议和设计元素
-5. 用英文描述，50字以内
+Please generate a concise, professional logo design description with the following requirements:
+1. Description should reflect the core functionality and features of the project
+2. Style should be modern, minimalist, and professional
+3. Suitable for use as a project logo
+4. Include color suggestions and design elements
+5. Describe in English, within 50 words
 
-只返回logo设计描述，不要其他解释。
+Return only the logo design description, no other explanations.
 """
         
-        # 获取logo描述
+        # Get logo description
         logo_description = model_client.get_answer(description_prompt)
-        console.print(f"[cyan]Logo 描述: {logo_description}[/cyan]")
+        console.print(f"[cyan]Logo Description: {logo_description}[/cyan]")
         
-        # 第二步：使用logo描述生成图片
-        image_prompt = f"A professional, modern, minimalist logo: {logo_description}"
-        console.print(f"[cyan]生成图片中...[/cyan]")
+        # Step 2: Generate image using logo description
+        image_prompt = f"A professional, modern, minimalist logo: {logo_description}, don't include any text in the image"
+        console.print(f"[cyan]Generating image...[/cyan]")
         
-        # 调用文生图接口生成logo
+        # Call text-to-image API to generate logo
         image_result = model_client.get_image(image_prompt)
         
         if "error" in image_result:
-            console.print(f"[red]图片生成失败: {image_result['error']}[/red]")
+            console.print(f"[red]Image generation failed: {image_result['error']}[/red]")
             return None
         
         if not image_result["content"]:
-            console.print("[red]图片内容为空，生成失败[/red]")
+            console.print("[red]Image content is empty, generation failed[/red]")
             return None
         
-        # 保存图片文件
+        # Save image file
         with open(png_path, 'wb') as f:
             f.write(image_result["content"])
         
-        console.print(f"[green]✔ Logo图片已保存到 {png_path}[/green]")
-        console.print(f"[green]✔ 图片URL: {image_result['url']}[/green]")
+        console.print(f"[green]✔ Logo image saved to {png_path}[/green]")
+        console.print(f"[green]✔ Image URL: {image_result['url']}[/green]")
         
         return png_path
             
     except Exception as e:
-        console.print(f"[red]生成logo失败: {e}[/red]")
+        console.print(f"[red]Logo generation failed: {e}[/red]")
         return None

@@ -120,3 +120,7 @@ dmypy.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# aireadme_output
+aireadme_output/
+output/

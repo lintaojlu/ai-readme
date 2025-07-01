@@ -2,16 +2,16 @@ import os
 from dotenv import load_dotenv
 from typing import Dict, Union
 
-# 加载环境变量文件
+# Load environment variables file
 load_dotenv('source.env')
 
 
 def get_llm_config() -> Dict[str, Union[str, int, float]]:
     """
-    获取LLM配置
+    Get LLM configuration
     
     Returns:
-        LLM配置字典
+        LLM configuration dictionary
     """
     return {
         "base_url": os.getenv("LLM_BASE_URL", "https://api.openai.com/v1"),
@@ -24,10 +24,10 @@ def get_llm_config() -> Dict[str, Union[str, int, float]]:
 
 def get_t2i_config() -> Dict[str, Union[str, int, float]]:
     """
-    获取文生图配置
+    Get text-to-image configuration
     
     Returns:
-        文生图配置字典
+        Text-to-image configuration dictionary
     """
     return {
         "base_url": os.getenv("T2I_BASE_URL", "https://api.openai.com/v1"),
@@ -40,22 +40,22 @@ def get_t2i_config() -> Dict[str, Union[str, int, float]]:
 
 def validate_config():
     """
-    验证配置是否完整
+    Validate if configuration is complete
     """
     llm_config = get_llm_config()
     t2i_config = get_t2i_config()
     
     if not llm_config["api_key"]:
-        raise ValueError("LLM_API_KEY 环境变量未设置")
+        raise ValueError("LLM_API_KEY environment variable not set")
     
     if not t2i_config["api_key"]:
-        raise ValueError("T2I_API_KEY 环境变量未设置")
+        raise ValueError("T2I_API_KEY environment variable not set")
     
-    print("配置验证通过")
+    print("Configuration validation passed")
     return True
 
 
-# 保留原有的默认配置，供其他模块使用
+# Keep original default configurations for use by other modules
 DEFAULT_IGNORE_PATTERNS = [
     ".git",
     ".vscode",
@@ -84,19 +84,19 @@ def get_readme_template_path():
 
 
 if __name__ == "__main__":
-    # 测试配置加载
-    print("=== LLM 配置 ===")
+    # Test configuration loading
+    print("=== LLM Configuration ===")
     llm_config = get_llm_config()
     for key, value in llm_config.items():
         print(f"{key}: {value}")
     
-    print("\n=== 文生图配置 ===")
+    print("\n=== Text-to-Image Configuration ===")
     t2i_config = get_t2i_config()
     for key, value in t2i_config.items():
         print(f"{key}: {value}")
     
-    print("\n=== 配置验证 ===")
+    print("\n=== Configuration Validation ===")
     try:
         validate_config()
     except ValueError as e:
-        print(f"配置验证失败: {e}")
+        print(f"Configuration validation failed: {e}")
