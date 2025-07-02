@@ -29,24 +29,25 @@ def generate_logo(project_dir, descriptions, model_client, console):
 {descriptions}
 
 Please generate a concise, professional logo design description with the following requirements:
-1. Description should reflect the core functionality and features of the project
-2. Style should be modern, minimalist, and professional
-3. Suitable for use as a project logo
-4. Include color suggestions and design elements
-5. Describe in English, within 50 words
+1. A flat, minimalist vector icon with rectangular outline and rounded corners
+2. Contains geometric shapes that reflect the project's core functionality
+3. Uses smooth gradient colors giving it a modern, tech-inspired look
+4. Clean, simple and modern design, suitable as a project logo
+6. Describe in English, within 50 words
 
-Return only the logo design description, no other explanations.
+Return only the logo design description focusing on geometric elements and color scheme, no other explanations.
 """
         
         # Get logo description
         logo_description = model_client.get_answer(description_prompt)
-        console.print(f"[cyan]Logo Description: {logo_description}[/cyan]")
         
         # Step 2: Generate image using logo description
-        image_prompt = f"A professional, modern, minimalist logo: {logo_description}, don't include any text in the image"
+        image_prompt = f"{logo_description} Don't include any text in the image."
+        console.print(f"[cyan]Image Prompt: {image_prompt}[/cyan]")
         console.print(f"[cyan]Generating image...[/cyan]")
         
-        # Call text-to-image API to generate logo
+        # Call text-to-image API to generate logo with high quality settings
+        console.print(f"[cyan]Using high-quality image generation (quality: hd, size: 1024x1024)[/cyan]")
         image_result = model_client.get_image(image_prompt)
         
         if "error" in image_result:

@@ -67,10 +67,15 @@ DEFAULT_IGNORE_PATTERNS = [
     "*.egg-info",
     ".venv",
     "venv",
+    "__init__.py",      # 根目录下的 __init__.py
+    "*/__init__.py",    # 一级子目录下的 __init__.py
+    "*/*/__init__.py",  # 二级子目录下的 __init__.py
+    ".idea"
 ]
 
 # Patterns for script files to be described by the LLM
 SCRIPT_PATTERNS = ["*.py", "*.sh"]
+DOCUMENT_PATTERNS = ["*.md", "*.txt"]
 
 
 def get_readme_template_path():

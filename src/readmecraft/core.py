@@ -14,12 +14,12 @@ from readmecraft.utils.file_handler import (
     load_gitignore_patterns,
 )
 from readmecraft.utils.logo_generator import generate_logo
-from .config import DEFAULT_IGNORE_PATTERNS, SCRIPT_PATTERNS, get_readme_template_path
+from .config import DEFAULT_IGNORE_PATTERNS, SCRIPT_PATTERNS, DOCUMENT_PATTERNS, get_readme_template_path
 
 
 class ReadmeCraft:
     def __init__(self, project_dir=None):
-        self.model_client = ModelClient()
+        self.model_client = ModelClient(quality="hd", image_size="1024x1024")  # 确保使用高质量、高分辨率图像生成
         self.console = Console()
         self.project_dir = project_dir  # 初始化时设置项目目录
         self.output_dir = None  # 输出目录将在 _get_basic_info 中设置
@@ -176,6 +176,8 @@ class ReadmeCraft:
                     self.config["github_username"] = url_match.group(1)
                     self.config["repo_name"] = url_match.group(2)
                     self.console.print("[green]✔ Git information gathered.[/green]")
+                    self.console.print(f"[green]✔ GitHub Username: {self.config['github_username']}[/green]")
+                    self.console.print(f"[green]✔ Repository Name: {self.config['repo_name']}[/green]")
                     return
         except Exception as e:
             self.console.print(f"[yellow]Could not read .git/config: {e}[/yellow]")
@@ -356,20 +358,22 @@ Return only the requirements.txt content, one package per line in format: packag
         
         return '\n'.join(cleaned_lines)
 
-    def _generate_script_descriptions(self, max_workers=3):
+    def _generate_script_descriptions(self, max_workers=5):
         """
         Generate script descriptions using multithreading
         
         Args:
             max_workers (int): Maximum number of threads, default is 3
         """
-        self.console.print("Generating script descriptions...")
+        self.console.print("Generating script and document descriptions...")
         gitignore_patterns = load_gitignore_patterns(self.project_dir)
         ignore_patterns = DEFAULT_IGNORE_PATTERNS + gitignore_patterns
-        filepaths = list(find_files(self.project_dir, SCRIPT_PATTERNS, ignore_patterns))
+        # 将脚本模式和文档模式合并，以便生成更全面的文件描述
+        all_patterns = SCRIPT_PATTERNS + DOCUMENT_PATTERNS
+        filepaths = list(find_files(self.project_dir, all_patterns, ignore_patterns))
 
         if not filepaths:
-            self.console.print("[yellow]No script files found to process.[/yellow]")
+            self.console.print("[yellow]No script or document files found to process.[/yellow]")
             return json.dumps({}, indent=2)
 
         table = Table(title="Files to be processed")
@@ -387,7 +391,7 @@ Return only the requirements.txt content, one package per line in format: packag
                 with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                prompt = f"Please provide a brief description of the following script:\n\n{content}"
+                prompt = f"Analyze the following script and provide a concise summary. Focus on:\n1. Main purpose and functionality\n2. Key functions/methods and their roles\n3. Important features or capabilities\n\nScript content:\n{content}"
                 description = self.model_client.get_answer(prompt)
                 
                 # Use lock to protect shared resource
@@ -428,9 +432,9 @@ Return only the requirements.txt content, one package per line in format: packag
             descriptions_path = os.path.join(self.output_dir, "script_descriptions.json")
             with open(descriptions_path, "w", encoding="utf-8") as f:
                 f.write(descriptions_json)
-            self.console.print(f"[green]✔ Script descriptions saved to: {descriptions_path}[/green]")
+            self.console.print(f"[green]✔ Script and document descriptions saved to: {descriptions_path}[/green]")
         
-        self.console.print(f"[green]✔ Script descriptions generated using {max_workers} threads.[/green]")
+        self.console.print(f"[green]✔ Script and document descriptions generated using {max_workers} threads.[/green]")
         self.console.print(f"[green]✔ Processed {len(descriptions)} files successfully.[/green]")
         return descriptions_json
 
@@ -497,8 +501,7 @@ Return only the requirements.txt content, one package per line in format: packag
 
         prompt = f"""You are a readme.md generator. You need to return the readme text directly without any other speech.
         Based on the following template, please generate a complete README.md file. 
-        Fill in the `project_title`, `project_description`, and `project_license` (e.g., MIT, Apache 2.0) based on the project context provided.
-        Also, complete the 'Built With' section based on the dependencies.
+        Fill in any missing information based on the project context provided.
 
         Use the additional project information provided by the user to enhance the content, especially for:
         - Project description and overview
