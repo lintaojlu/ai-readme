@@ -1,71 +1,88 @@
 
-<p align="center">
+<div align="center">
   <img src="images/logo.png" alt="logo" width="200"/>
-</p>
-<h3 align="center">ReadmeCraft</h3>
-<p align="center">
-  An automated README.md generator that creates professional documentation for your projects with AI assistance.
-  <br />
-  ·
-  ·
-</p>
+  <h3 align="center">Auto Readme Generator</h3>
+  <p align="center">
+    a readme generator powered by ai
+    <br />
+    <a href="https://github.com/lintaojlu/auto_readme"><strong>Explore the docs »</strong></a>
+    ·
+    <a href="https://github.com/lintaojlu/auto_readme/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/lintaojlu/auto_readme/issues">Request Feature</a>
+  </p>
 </div>
 
 ---
 
 ## About The Project
 
-ReadmeCraft is a Python-based tool that automatically generates comprehensive `README.md` files for software projects. It analyzes project structure, dependencies, and scripts to create professional documentation with minimal user input. The tool leverages AI to generate descriptions, create project logos, and format content according to best practices.
+Auto Readme Generator is an AI-powered tool that simplifies the process of generating professional README.md files for Python projects. By scanning a project’s directory, analyzing its scripts, and extracting key information like dependencies and features, this tool creates a beautiful and comprehensive `README.md` file. It also generates other project documentation, including `requirements.txt` and project structure analysis.
 
-Key features:
-- Automatic project structure analysis
-- AI-powered script descriptions
-- Dependency detection
-- Logo generation
-- Git integration
-- Customizable templates
+### Key Features:
+- Automatically generates a structured `README.md` for your Python project.
+- Creates a `requirements.txt` file by analyzing the project's dependencies.
+- Uses AI to read and describe all scripts in the project.
+- Optionally generates a logo for your project.
+- Easy-to-use with interactive prompts, making it beginner-friendly.
+
+---
 
 ## Built With
 
-- Python
-- cairosvg (for SVG to PNG conversion)
-- Rich (for console formatting)
-- OpenAI API (for AI-powered content generation)
+- **Django** >= 3.0
+- **Flask** >= 1.1.2
+- **python-dotenv** >= 0.15.0
+- **fnmatch** >= 1.0.0
+- **numpy** >= 1.21.0
+- **openai** >= 0.11.0
+- **rich** >= 10.0.0
+- **SQLAlchemy** >= 1.3.0
+- **requests** >= 2.25.0
+- **matplotlib** >= 3.0.0
+- **pandas** >= 1.1.0
+- **pytest** >= 6.0.0
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.7+
-- OpenAI API key (for AI features)
-- cairosvg dependencies (libcairo2 on Linux)
+Ensure you have `pip` installed on your machine. You can install the required dependencies using:
+
+```bash
+pip install -e .
+```
 
 ### Installation
 
 1. Clone the repository:
-   ```sh
-   git clone https://github.com/your_username/readmecraft.git
+
+   ```bash
+   git clone https://github.com/lintaojlu/auto_readme.git
+   cd auto_readme
    ```
-2. Install dependencies:
-   ```sh
+
+2. Install the dependencies:
+
+   ```bash
    pip install -e .
    ```
-3. Set up your OpenAI API key:
-   ```sh
-   export OPENAI_API_KEY='your-api-key'
-   ```
+
+---
 
 ## Usage
 
-Run the tool from the command line:
-```sh
-python -m readmecraft.utils.cli /path/to/your/project
+After installing the package, you can generate a README for your project by running:
+
+```bash
+readmecraft
 ```
 
-The tool will:
-1. Analyze your project structure
-2. Generate a logo
-3. Create a comprehensive README.md file
+This will start an interactive prompt where you can select your project path and customize the output.
+
+---
 
 ## Contributing
 
@@ -77,32 +94,30 @@ Contributions are what make the open source community such an amazing place to l
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+---
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
+---
+
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_twitter) - your.email@example.com
+[@lintaothu](https://twitter.com/lintaothu) - lintaothu.foxmail.com
 
-Project Link: [https://github.com/your_username/readmecraft](https://github.com/your_username/readmecraft)
+Project Link: [https://github.com/lintaojlu/auto_readme](https://github.com/lintaojlu/auto_readme)
+
+---
 
 ## Acknowledgments
 
-* [cairosvg](https://cairosvg.org/)
-* [Rich](https://github.com/Textualize/rich)
+* [Django](https://www.djangoproject.com/)
+* [Flask](https://flask.palletsprojects.com/)
 * [OpenAI](https://openai.com/)
+* [rich](https://rich.readthedocs.io/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/your_username/readmecraft.svg?style=for-the-badge
-[contributors-url]: https://github.com/your_username/readmecraft/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/your_username/readmecraft.svg?style=for-the-badge
-[forks-url]: https://github.com/your_username/readmecraft/network/members
-[stars-shield]: https://img.shields.io/github/stars/your_username/readmecraft.svg?style=for-the-badge
-[stars-url]: https://github.com/your_username/readmecraft/stargazers
-[issues-shield]: https://img.shields.io/github/issues/your_username/readmecraft.svg?style=for-the-badge
-[issues-url]: https://github.com/your_username/readmecraft/issues
-[license-shield]: https://img.shields.io/github/license/your_username/readmecraft.svg?style=for-the-badge
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+```
+

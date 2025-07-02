@@ -1,24 +1,35 @@
 import argparse
-import os
 from rich.console import Console
 from readmecraft.core import ReadmeCraft
 
 def main():
-    parser = argparse.ArgumentParser(description="Automatically generate a README.md for your project.")
-    parser.add_argument(
-        "project_dir",
-        nargs="?",
-        default=os.getcwd(),
-        help="The path to the project directory (default: current directory)."
+    """
+    ReadmeCraft command line entry point
+    Use interactive interface to get project path and output directory
+    """
+    parser = argparse.ArgumentParser(
+        description="ReadmeCraft - AI-driven README documentation generator",
+        epilog="Use interactive interface to configure project path and output directory"
     )
+    parser.add_argument(
+        "--version", 
+        action="version", 
+        version="ReadmeCraft 0.1.8"
+    )
+    
+    # Parse command line arguments (now only --help and --version)
     args = parser.parse_args()
 
     try:
-        try:
-            readme_generator = ReadmeCraft(args.project_dir)
-            readme_generator.generate()
-        except FileNotFoundError as e:
-            console = Console()
-            console.print(f"[red]Error: {e}[/red]")
+        # Create ReadmeCraft instance using interactive mode
+        readme_generator = ReadmeCraft()
+        readme_generator.generate()
+    except KeyboardInterrupt:
+        console = Console()
+        console.print("\n[yellow]Operation cancelled[/yellow]")
+    except FileNotFoundError as e:
+        console = Console()
+        console.print(f"[red]Error: {e}[/red]")
     except Exception as e:
-        print(f"Error: {e}")
+        console = Console()
+        console.print(f"[red]An error occurred: {e}[/red]")

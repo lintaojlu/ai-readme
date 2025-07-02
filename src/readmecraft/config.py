@@ -1,10 +1,61 @@
 import os
-import json
-from pathlib import Path
-from importlib import resources
-from rich import print
+from dotenv import load_dotenv
+from typing import Dict, Union
 
-# Default ignore patterns for project structure analysis
+# Load environment variables file
+load_dotenv('source.env')
+
+
+def get_llm_config() -> Dict[str, Union[str, int, float]]:
+    """
+    Get LLM configuration
+    
+    Returns:
+        LLM configuration dictionary
+    """
+    return {
+        "base_url": os.getenv("LLM_BASE_URL", "https://api.openai.com/v1"),
+        "api_key": os.getenv("LLM_API_KEY"),
+        "model_name": os.getenv("LLM_MODEL_NAME", "gpt-3.5-turbo"),
+        "max_tokens": int(os.getenv("MAX_TOKENS", "1000")),
+        "temperature": float(os.getenv("TEMPERATURE", "0.7"))
+    }
+
+
+def get_t2i_config() -> Dict[str, Union[str, int, float]]:
+    """
+    Get text-to-image configuration
+    
+    Returns:
+        Text-to-image configuration dictionary
+    """
+    return {
+        "base_url": os.getenv("T2I_BASE_URL", "https://api.openai.com/v1"),
+        "api_key": os.getenv("T2I_API_KEY"),
+        "model_name": os.getenv("T2I_MODEL_NAME", "dall-e-3"),
+        "image_size": os.getenv("IMAGE_SIZE", "1024x1024"),
+        "quality": os.getenv("QUALITY", "standard")
+    }
+
+
+def validate_config():
+    """
+    Validate if configuration is complete
+    """
+    llm_config = get_llm_config()
+    t2i_config = get_t2i_config()
+    
+    if not llm_config["api_key"]:
+        raise ValueError("LLM_API_KEY environment variable not set")
+    
+    if not t2i_config["api_key"]:
+        raise ValueError("T2I_API_KEY environment variable not set")
+    
+    print("Configuration validation passed")
+    return True
+
+
+# Keep original default configurations for use by other modules
 DEFAULT_IGNORE_PATTERNS = [
     ".git",
     ".vscode",
@@ -16,71 +67,41 @@ DEFAULT_IGNORE_PATTERNS = [
     "*.egg-info",
     ".venv",
     "venv",
+    "__init__.py",      # 根目录下的 __init__.py
+    "*/__init__.py",    # 一级子目录下的 __init__.py
+    "*/*/__init__.py",  # 二级子目录下的 __init__.py
+    ".idea"
 ]
 
 # Patterns for script files to be described by the LLM
 SCRIPT_PATTERNS = ["*.py", "*.sh"]
+DOCUMENT_PATTERNS = ["*.md", "*.txt"]
 
-def get_llm_config():
-    """
-    获取 LLM 配置信息。
-    优先级：环境变量 > 配置文件。
-    """
-    print("[bold cyan]Searching for API configurations...[/bold cyan]")
-
-    api_key = os.environ.get("OPENAI_API_KEY")
-    base_url = os.environ.get("OPENAI_BASE_URL")
-    model_name = os.environ.get("MODEL_NAME")
-
-    config = {}
-
-    if api_key:
-        print("[green]✔ Found [bold]OPENAI_API_KEY[/bold] in environment variables.[/green]")
-        config["api_key"] = api_key
-    else:
-        print("[yellow]⚠ [bold]OPENAI_API_KEY[/bold] not found in environment variables.[/yellow]")
-
-    if base_url:
-        print("[green]✔ Found [bold]OPENAI_BASE_URL[/bold] in environment variables.[/green]")
-        config["base_url"] = base_url
-    else:
-        print("[yellow]ℹ [bold]OPENAI_BASE_URL[/bold] not found, using default.[/yellow]")
-
-    if model_name:
-        print("[green]✔ Found [bold]MODEL_NAME[/bold] in environment variables.[/green]")
-        config["model"] = model_name
-    else:
-        print("[yellow]ℹ [bold]MODEL_NAME[/bold] not found, using default.[/yellow]")
-
-    if config.get("api_key"):
-        return config
-
-    config_path = Path.home() / ".config" / "readmecraft" / "user_config.json"
-    print(f"[cyan]Searching for configuration file at: [bold]{config_path}[/bold][/cyan]")
-
-    if os.path.exists(config_path):
-        print("[green]✔ Found configuration file.[/green]")
-        with open(config_path, "r") as f:
-            return json.load(f)
-    else:
-        print(f"[yellow]⚠ Configuration file not found at: [bold]{config_path}[/bold][/yellow]")
-        return {}
 
 def get_readme_template_path():
     """Gets the path to the BLANK_README.md template."""
+    from importlib import resources
     try:
         with resources.path('readmecraft', 'BLANK_README.md') as p:
             return str(p)
     except FileNotFoundError:
         raise FileNotFoundError("BLANK_README.md not found in package.")
 
-def save_config(config):
-    """
-    将配置保存到用户配置文件。
-    """
-    config_dir = Path.home() / ".config" / "readmecraft"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    config_path = config_dir / "user_config.json"
-    with open(config_path, "w") as f:
-        json.dump(config, f, indent=4)
-    print(f"Configuration saved to {config_path}")
+
+if __name__ == "__main__":
+    # Test configuration loading
+    print("=== LLM Configuration ===")
+    llm_config = get_llm_config()
+    for key, value in llm_config.items():
+        print(f"{key}: {value}")
+    
+    print("\n=== Text-to-Image Configuration ===")
+    t2i_config = get_t2i_config()
+    for key, value in t2i_config.items():
+        print(f"{key}: {value}")
+    
+    print("\n=== Configuration Validation ===")
+    try:
+        validate_config()
+    except ValueError as e:
+        print(f"Configuration validation failed: {e}")
