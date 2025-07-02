@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "readmecraft"
-version = "0.1.8"
+name = "aireadme"
+version = "0.2.0"
 authors = [
   { name="stone91", email="m370025263@gmail.com" },
   { name="lintao", email="lint22@mails.tsinghua.edu.cn"},
@@ -18,21 +18,22 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "openai>=1.0.0",
-    "requests",
-    "rich",
-    "drawsvg",
-    "cairosvg"
+    "python-dotenv>=0.15.0",
+    "numpy>=1.21.0",
+    "openai>=0.11.0",
+    "rich>=10.0.0",
+    "requests>=2.25.0",
+    "pytest>=6.0.0"
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-readmecraft = ["*.md"]
+aireadme = ["*.md"]
 
 [project.scripts]
-readmecraft = "readmecraft.utils.cli:main"
+aireadme = "aireadme.utils.cli:main"
 
 [project.urls]
 "Homepage" = "https://github.com/lintaojlu/auto_readme"
