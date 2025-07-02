@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/{{github_username}}/{{repo_name}}">
-    <img src="images/logo.png" alt="Logo" width="100" height="100">
+    <img src="images/logo.png" alt="Logo" height="100">
   </a>
 
 <h3 align="center">{{project_title}}</h3>
@@ -73,7 +73,10 @@
 
 [![Product Name Screen Shot](images/screenshot.png)](https://example.com)
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `{{github_username}}`, `{{repo_name}}`, `{{twitter_handle}}`, `{{linkedin_username}}`, `{{email}}`, `{{project_title}}`, `{{project_description}}`, `{{project_license}}`
+### Key Features
+
+{{key_features_section}}
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -178,7 +181,7 @@ Project Link: [https://github.com/{{github_username}}/{{repo_name}}](https://git
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-{{acknowledgments_section}}
+if you have any acknowledgments, please add them here.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

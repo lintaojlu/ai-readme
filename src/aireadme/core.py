@@ -7,17 +7,17 @@ from threading import Lock
 from rich.console import Console
 from rich.progress import Progress
 from rich.table import Table
-from readmecraft.utils.model_client import ModelClient
-from readmecraft.utils.file_handler import (
+from aireadme.utils.model_client import ModelClient
+from aireadme.utils.file_handler import (
     find_files,
     get_project_structure,
     load_gitignore_patterns,
 )
-from readmecraft.utils.logo_generator import generate_logo
+from aireadme.utils.logo_generator import generate_logo
 from .config import DEFAULT_IGNORE_PATTERNS, SCRIPT_PATTERNS, DOCUMENT_PATTERNS, get_readme_template_path
 
 
-class ReadmeCraft:
+class aireadme:
     def __init__(self, project_dir=None):
         self.model_client = ModelClient(quality="hd", image_size="1024x1024")  # 确保使用高质量、高分辨率图像生成
         self.console = Console()
@@ -81,7 +81,7 @@ class ReadmeCraft:
         """
         Interactive input for basic information: project path and output directory
         """
-        self.console.print("[bold cyan]ReadmeCraft - AI README Generator[/bold cyan]")
+        self.console.print("[bold cyan]aireadme - AI README Generator[/bold cyan]")
         self.console.print("Please configure basic information (press Enter to use default values)\n")
 
         # Get project path
